@@ -4,7 +4,7 @@ Guidance for coding agents working on Reel Video.
 
 ## Constraints
 
-- Use Python 3.12 and Node.js 22; the runtime Docker image includes CUDA dependencies.
+- Use uv with Python 3.12 and Node.js 22; the runtime Docker image includes CUDA dependencies.
 - Keep changes focused. Never commit or print secrets, weights, private inputs, generated media,
   local state, virtual environments, dependency directories, or test output.
 - Do not download models or run GPU generation unless explicitly requested. CI intentionally uses
@@ -18,8 +18,8 @@ Guidance for coding agents working on Reel Video.
 Follow [`docs/ci.md`](docs/ci.md). The focused CPU checks are:
 
 ```sh
-sh ci/python.sh
-npm test
+uv run --no-project --python 3.12 --with-requirements ci/requirements.txt sh ci/python.sh
+uv run --no-project --python 3.12 --with-requirements ci/requirements.txt npm test
 ```
 
 They require the documented Python/Node dependencies, Chromium, and FFmpeg. CUDA validation is
@@ -42,8 +42,10 @@ to make CI pass.
 All original code, tests, verification scripts, CSS/HTML, Dockerfiles and YAML automation
 must carry `Copyright 2026 Spunky Tensor` and `SPDX-License-Identifier: Apache-2.0`
 in the first eight lines, using the language's comment syntax. Preserve shebangs and
-HTML doctypes. Run `python ci/check_headers.py`; JSON uses license metadata instead
-of comments. Do not relicense third-party fonts or remove attribution.
+HTML doctypes. Run `uv run --no-project --python 3.12 python ci/check_headers.py`;
+JSON uses license metadata instead of comments. Do not relicense third-party fonts
+or remove attribution.
 
 Explain non-obvious contracts, concurrency, memory and security tradeoffs with rationale
-comments; avoid narrating obvious statements. Keep existing measured evidence references.
+comments; avoid narrating obvious statements. Keep documentation factual and task-focused;
+omit project history and design justifications.

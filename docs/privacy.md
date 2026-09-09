@@ -22,7 +22,7 @@ and firewall; the default listener publishes plain HTTP on all host interfaces.
   The worker performs physical cleanup, so a stopped worker delays reclamation.
   Linux downloads already holding open file descriptors can finish after unlink.
 - Logs, SQLite free pages, browser state and backups can retain information after
-  normal deletion. Do not promise forensic erasure or submit secrets as prompts.
+  normal deletion. Do not submit secrets as prompts.
 
 ## Credentials and networking
 
@@ -34,7 +34,7 @@ Startup contacts Hugging Face to download pinned components into the model volum
 Generation uses local weights and the worker creates Linux network namespaces before
 loading the model. Failure to establish that isolation stops the worker. The launcher
 uses `seccomp=unconfined` to permit this; it weakens container syscall isolation and
-is not suitable for hostile tenants. No Internet-service safety claim is made.
+is not suitable for hostile tenants.
 
 ## Backup, restore and diagnosis
 

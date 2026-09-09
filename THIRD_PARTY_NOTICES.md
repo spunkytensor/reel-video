@@ -15,8 +15,7 @@ weights. They are not covered by this repository's Apache License 2.0.
 
 ## Fonts
 
-The font binaries were copied from Reel Maestro and are served by the application,
-not only its design mockups. Their upstream projects are
+The application bundles fonts from
 [Inter](https://github.com/rsms/inter) and
 [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono).
 
@@ -31,9 +30,8 @@ The runtime builds [FFmpeg 9.0.1](https://ffmpeg.org/) with GPL and version-3
 support and links Wolfi's [x264](https://www.videolan.org/developers/x264.html)
 (`2025.06.08-r7`, GPL-2.0-or-later). This FFmpeg build is GPL-3.0-or-later,
 not Apache-2.0. [PyAV 18.1.0](https://github.com/PyAV-Org/PyAV) is BSD-3-Clause
-and is built from source against those shared libraries, rather than using its
-PyPI wheel's bundled FFmpeg. Preserve the applicable GPL obligations when
-redistributing these linked media components.
+and is built from source against those shared libraries. Preserve the applicable
+GPL obligations when redistributing these linked media components.
 
 The image includes the corresponding FFmpeg and PyAV source archives, x264
 source at Wolfi's pinned revision and its immutable packaging recipe under

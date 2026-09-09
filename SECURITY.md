@@ -21,8 +21,7 @@ all secrets and private content.
 The HTTP application is a **trusted-network, shared-access service**, not a multi-user security
 boundary. `POST /session` automatically grants shared access. `Host` and `Origin` validation is
 not authentication. Do not expose it to the Internet and do not use it to isolate mutually
-untrusted users. Put an independently managed authenticated gateway and appropriate network,
-filesystem, process, and GPU isolation in front of it if adapting it for a different environment.
+untrusted users.
 
 Security-sensitive areas include upload/path handling, SQLite state, media delivery, subprocesses,
 FFmpeg/Pillow parsing, denial of service and resource exhaustion, accidental disclosure of inputs
