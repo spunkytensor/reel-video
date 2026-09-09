@@ -4,7 +4,7 @@
 
 ## Checks run
 
-<!-- Include exact commands, especially sh ci/python.sh and npm test. -->
+<!-- Include exact commands from docs/ci.md and their results. -->
 
 ## Model, network, and CUDA activity
 
