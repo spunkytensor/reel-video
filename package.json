@@ -1,0 +1,11 @@
+{
+  "name": "reel-video-checks",
+  "private": true,
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "node ci/browser.cjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.63.0"
+  }
+}

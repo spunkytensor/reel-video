@@ -1,0 +1,50 @@
+# Downloaded models and generated media/runtime files
+/models/
+/outputs/
+/logs/
+*.log
+/state/
+/.gpu.lock
+/node_modules/
+
+# Virtual environments
+.venv/
+.venv-ci/
+venv/
+env/
+
+# Python bytecode, tooling caches, and test reports
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.tox/
+.nox/
+.cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.hypothesis/
+.ipynb_checkpoints/
+
+# Python packaging artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Local credentials/configuration
+.env
+.env.*
+!.env.example
+
+# OS and editor temporary files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

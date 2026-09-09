@@ -1,0 +1,50 @@
+# Copyright 2026 Spunky Tensor
+# SPDX-License-Identifier: Apache-2.0
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cpu:
+    name: Real CPU API, media and frontend checks (no model execution)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install CPU test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          python -m pip install -r ci/requirements.txt
+          npm ci
+          npx playwright-core install --with-deps chromium
+      - name: Python contracts and real FFmpeg encode/decode
+        run: sh ci/python.sh
+      - name: Browser against the real HTTP server and SQLite (worker disabled)
+        run: npm test
+      - name: Build and test the exact native runtime (CPU only, no weights)
+        run: |
+          docker build --tag reel-video:ci .
+          sh ci/runtime.sh reel-video:ci
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cpu-ci-evidence
+          path: outputs/ci/
+          if-no-files-found: error

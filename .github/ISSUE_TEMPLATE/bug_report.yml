@@ -1,0 +1,50 @@
+# Copyright 2026 Spunky Tensor
+# SPDX-License-Identifier: Apache-2.0
+name: Bug report
+description: Report a reproducible Reel Video problem.
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include secrets, private media/prompts, model weights, or vulnerability details.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include exact commands and relevant non-secret inputs.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, commit, Python/Node versions, and—if intentionally used—GPU, driver, and CUDA versions.
+    validations:
+      required: true
+  - type: dropdown
+    id: generation
+    attributes:
+      label: Did this involve model downloads or GPU generation?
+      options: ["No", "Yes", "Unsure"]
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized logs or output
+      description: Remove secrets, private content, local paths, and identifying data.
+      render: text

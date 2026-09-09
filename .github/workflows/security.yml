@@ -1,0 +1,86 @@
+# Copyright 2026 Spunky Tensor
+# SPDX-License-Identifier: Apache-2.0
+
+name: CVE Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Syft + Grype (${{ matrix.target }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [source, runtime-image]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build actual runtime, including CUDA wheels (no execution or weights)
+        if: matrix.target == 'runtime-image'
+        run: docker build --pull --tag reel-video:audit .
+      - name: Verify native compatibility and Python fixes before applying VEX
+        if: matrix.target == 'runtime-image'
+        run: sh ci/runtime.sh reel-video:audit
+      - name: Catalog declared Python and frontend test dependencies
+        if: matrix.target == 'source'
+        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        with:
+          path: .
+          format: syft-json
+          output-file: sbom.syft.json
+          syft-version: v1.51.1
+          config: ci/syft.yaml
+          upload-artifact: false
+          upload-release-assets: false
+      - name: Catalog installed OS, Python and CUDA packages
+        if: matrix.target == 'runtime-image'
+        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        with:
+          image: reel-video:audit
+          format: syft-json
+          output-file: sbom.syft.json
+          syft-version: v1.51.1
+          config: ci/syft.yaml
+          upload-artifact: false
+          upload-release-assets: false
+      - name: Reject incomplete Python or npm inventories
+        env:
+          TARGET: ${{ matrix.target }}
+        run: python3 ci/check_sbom.py sbom.syft.json "$TARGET"
+      - name: Fail on High or Critical CVEs, including unfixed findings
+        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
+        env:
+          GRYPE_VEX_DOCUMENTS: ${{ matrix.target == 'runtime-image' && 'ci/runtime.openvex.json' || '' }}
+        with:
+          sbom: sbom.syft.json
+          grype-version: v0.118.0
+          fail-build: true
+          severity-cutoff: high
+          only-fixed: false
+          output-format: json
+          output-file: grype.json
+      - name: Do not accept severity reclassification as remediation
+        if: always() && matrix.target == 'runtime-image' && hashFiles('grype.json') != ''
+        run: python3 ci/check_cve_baseline.py grype.json
+      - name: Retain inventory and audit results even on failure
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cve-${{ matrix.target }}
+          path: |
+            sbom.syft.json
+            grype.json
+            ci/runtime.openvex.json
+            outputs/ci/runtime.xml
+          if-no-files-found: error
+          retention-days: 14

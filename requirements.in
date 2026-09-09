@@ -1,0 +1,15 @@
+torch==2.14.0
+torchvision==0.29.0
+torchao==0.18.0
+diffusers==0.40.0
+transformers==5.16.1
+accelerate
+av
+scipy
+sentencepiece
+psutil
+ruff
+pytest
+fastapi==0.135.1
+uvicorn==0.41.0
+httpx==0.28.1

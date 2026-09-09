@@ -1,0 +1,92 @@
+/* Copyright 2026 Spunky Tensor
+   SPDX-License-Identifier: Apache-2.0 */
+
+/* Adapted from Reel Maestro Studio; light colors tuned for lower glare and clearer contrast.
+   Four materials: Canvas, Glass, Glass Elevated, Ink. One accent hue (the primary action). */
+
+@font-face { font-family: "Inter"; src: url("fonts/Inter-latin.woff2") format("woff2"); font-weight: 400 700; font-display: block; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-latin.woff2") format("woff2"); font-weight: 400 600; font-display: block; }
+
+:root {
+  color-scheme: light;
+  --canvas: #D5DCE5;
+  --ink-1: #151D29; --ink-2: #354154; --ink-3: #465367;
+  --hair: rgba(35,48,68,.26); --fill: rgba(35,48,68,.13); --fill-2: rgba(35,48,68,.20);
+  --glass: rgba(225,231,239,.88); --glass-el: rgba(225,231,239,.97);
+  --glass-hi: rgba(255,255,255,.24); --edge-top: rgba(255,255,255,.65); --edge-bot: rgba(35,48,68,.20);
+  --el-shadow: 0 20px 60px rgba(22,32,48,.16);
+  --field: #CDD6E2; --on-glass-pill: rgba(235,240,246,.80);
+  --accent: #F26B21; --accent-2: #FFA45E; --on-accent: #16181D;
+  --ok: #236B44; --warn: #806000; --err: #B3332B;
+  --blob-1: rgba(100,130,255,.38); --blob-2: rgba(255,155,100,.30); --blob-3: rgba(170,115,245,.30);
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #0C0E12;
+  --ink-1: rgba(242,243,245,.92); --ink-2: rgba(242,243,245,.6); --ink-3: rgba(242,243,245,.38);
+  --hair: rgba(242,243,245,.10); --fill: rgba(242,243,245,.07); --fill-2: rgba(242,243,245,.12);
+  --glass: rgba(255,255,255,.08); --glass-el: rgba(26,29,36,.7);
+  --glass-hi: rgba(255,255,255,.35); --edge-top: rgba(255,255,255,.38); --edge-bot: rgba(255,255,255,.06);
+  --el-shadow: 0 20px 60px rgba(0,0,0,.35);
+  --field: rgba(255,255,255,.08); --on-glass-pill: rgba(255,255,255,.14);
+  --accent: #FF7A33; --accent-2: #FFB176; --on-accent: #16181D;
+  --ok: #5CC98A; --warn: #E2B23C; --err: #FF7B6E;
+  --blob-1: rgba(80,110,255,.34); --blob-2: rgba(255,130,70,.2); --blob-3: rgba(150,100,255,.28);
+}
+/* Reduced transparency: opaque panels, no blur. */
+:root[data-solid="1"] { --glass: #E1E7EF; --glass-el: #E1E7EF; }
+:root[data-solid="1"][data-theme="dark"] { --glass: #181B22; --glass-el: #1E222B; }
+:root[data-solid="1"] .glass { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 16px; line-height: 1.55; color: var(--ink-1); background: var(--canvas);
+  -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01"; overflow: auto;
+}
+body::before { /* colour field the glass can refract */
+  content: ""; position: fixed; inset: -12%; z-index: -1; pointer-events: none; filter: blur(48px);
+  background:
+    radial-gradient(38% 42% at 14% 12%, var(--blob-1), transparent 72%),
+    radial-gradient(34% 40% at 88% 18%, var(--blob-2), transparent 72%),
+    radial-gradient(46% 46% at 55% 100%, var(--blob-3), transparent 72%);
+}
+
+/* Light-mode fields need a clear boundary against the softer glass surface. */
+:root:not([data-theme="dark"]) :is(input:not([type="checkbox"]), textarea, select) { border-color: #596A80; }
+:root:not([data-theme="dark"]) :is(input, textarea)::placeholder { color: var(--ink-3); opacity: 1; }
+
+/* White navigation anchors the light theme above the colored canvas. */
+:root:not([data-theme="dark"]) header { background: #FFFFFF; }
+
+/* Size the OPEN menu rows, not just the closed field. Native select semantics remain intact. */
+select { min-height: 48px; touch-action: manipulation; }
+select:not([multiple]):not([size]) {
+  box-sizing: border-box; height: 48px; min-height: 48px; flex-shrink: 0;
+  padding: 12px 16px; font-size: 1rem; line-height: 1.5;
+}
+@supports not (appearance: base-select) {
+  select:not([multiple]):not([size]) {
+    -webkit-appearance: none; appearance: none; padding-right: 40px;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: calc(100% - 21px) 50%, calc(100% - 16px) 50%;
+    background-size: 5px 5px; background-repeat: no-repeat;
+  }
+}
+select option { min-height: 48px; padding: 12px 16px; font-size: 1rem; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+@supports (appearance: base-select) {
+  select:not([multiple]):not([size]), select:not([multiple]):not([size])::picker(select) { appearance: base-select; }
+  select::picker(select) {
+    background: var(--canvas); color: var(--ink-1); border: 1px solid var(--hair);
+    border-radius: 16px; padding: 4px; box-shadow: var(--el-shadow);
+    max-width: calc(100vw - 24px); max-height: min(360px, 60dvh); overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  select option { display: flex; align-items: center; gap: 12px; border-radius: 12px; }
+  select option:checked { background: var(--on-glass-pill); font-weight: 600; }
+  select option:hover:not(:disabled), select option:focus-visible { background: var(--fill-2); }
+  select option:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  select option:disabled { color: var(--ink-3); }
+  select::picker-icon { margin-inline-start: 12px; flex-shrink: 0; }
+}

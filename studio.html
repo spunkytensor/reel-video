@@ -1,0 +1,1117 @@
+<!doctype html>
+<!-- Copyright 2026 Spunky Tensor
+     SPDX-License-Identifier: Apache-2.0 -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reel Video</title>
+  <link rel="stylesheet" href="/assets/studio-tokens.css">
+  <script>try { const theme = localStorage.getItem("reel-video-theme") || "system"; document.documentElement.dataset.theme = theme === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : theme; } catch (_) { document.documentElement.dataset.theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }</script>
+  <style>
+    :root {
+      --bg: var(--canvas); --panel: var(--glass); --panel-2: var(--fill);
+      --line: var(--hair); --text: var(--ink-1); --muted: var(--ink-2);
+      --accent-ink: var(--on-accent); --danger: var(--err); --warning: var(--warn); --radius: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--bg); }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background: transparent;
+    }
+    button, input, select, textarea { font: inherit; }
+    button, select { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    [hidden] { display: none !important; }
+
+    .shell { width: min(1440px, 100%); margin: auto; padding: 0 28px 56px; }
+    header {
+      min-height: 84px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 760; letter-spacing: -.02em; }
+    .mark { width: 65.25px; height: 65.25px; object-fit: contain; border-radius: 12px; flex-shrink: 0; }
+    .corner-logo-link {
+      position: fixed; right: 16px; bottom: 14px; width: 88px; height: 88px;
+      z-index: 20;
+    }
+    .corner-logo {
+      display: block; width: 88px; height: 88px; object-fit: contain;
+    }
+    main { padding-top: 38px; }
+    .eyebrow { color: var(--accent); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 760; }
+    h1 { font-size: clamp(2.25rem, 6vw, 5.2rem); line-height: .96; letter-spacing: -.065em; margin: 10px 0 18px; max-width: 850px; }
+    .lead { color: var(--muted); font-size: 1.08rem; line-height: 1.6; max-width: 650px; margin: 0; }
+    .panel { position: relative; border: 0; border-radius: var(--radius); background: var(--glass); overflow: hidden; }
+    .composer { position: sticky; top: 18px; max-height: calc(100vh - 36px); overflow-y: auto; }
+    .panel-head { padding: 21px 22px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .panel-head h2 { font-size: 1rem; margin: 0; letter-spacing: -.01em; }
+    .panel-body { padding: 22px; }
+    label, legend { display: block; color: var(--ink-1); font-size: .79rem; font-weight: 680; margin-bottom: 8px; }
+    input, textarea, select {
+      width: 100%; color: var(--text); background: var(--field); border: 1px solid transparent; border-radius: 9px; padding: 11px 12px;
+    }
+    textarea { resize: vertical; min-height: 132px; line-height: 1.45; }
+    input:hover, textarea:hover, select:hover { border-color: var(--hair); }
+    .field { margin-bottom: 18px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .hint { margin: 7px 0 0; color: var(--muted); font-size: .74rem; line-height: 1.45; }
+    progress { display: block; width: 100%; height: 12px; margin: 8px 0; accent-color: var(--accent); }
+    fieldset { border: 0; padding: 0; margin: 0 0 19px; }
+    .check { display: flex; align-items: center; gap: 9px; margin: 0; }
+    .check input { width: 17px; height: 17px; accent-color: var(--accent); }
+    .button {
+      border: 1px solid var(--line); border-radius: 9px; color: var(--text); background: var(--panel-2); padding: 10px 14px; font-weight: 720;
+    }
+    .button:hover:not(:disabled) { border-color: var(--hair); background: var(--fill-2); }
+    .button-primary { width: 100%; border-color: var(--accent); background: var(--accent); color: var(--accent-ink); padding: 13px 16px; }
+    .button-primary:hover:not(:disabled) { background: var(--accent-2); border-color: var(--accent-2); }
+    .button-quiet { background: transparent; padding: 7px 10px; font-size: .78rem; }
+    .notice { margin: 16px 0 0; border-radius: 9px; padding: 12px; font-size: .8rem; line-height: 1.45; background: var(--fill); color: var(--warning); border: 1px solid var(--hair); }
+    .notice.error { color: var(--danger); background: var(--fill); border-color: var(--hair); }
+    .notice button { margin-top: 10px; }
+    .image-slots { display: grid; gap: 10px; }
+    .image-slot { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 10px; padding: 9px; border: 1px solid var(--line); border-radius: 10px; }
+    .image-slot img { width: 64px; height: 54px; object-fit: cover; border-radius: 7px; background: #08090b; }
+    .image-slot input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .slot-copy { min-width: 0; font-size: .76rem; color: var(--muted); overflow-wrap: anywhere; }
+    .slot-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .upload-state { color: var(--warning); }
+
+    .history-head { display: flex; gap: 12px; align-items: center; }
+    .poll-state { font-size: .72rem; color: var(--muted); }
+    .jobs { display: grid; gap: 14px; padding: 14px; }
+    .empty { text-align: center; padding: 70px 25px; color: var(--muted); }
+    .empty strong { display: block; color: var(--text); margin-bottom: 7px; }
+    .job { display: grid; grid-template-columns: minmax(180px, 38%) 1fr; min-height: 230px; background: var(--fill); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .preview { min-height: 220px; display: grid; place-items: center; background: #08090b; border-right: 1px solid var(--line); position: relative; }
+    .preview video { width: 100%; height: 100%; max-height: 360px; object-fit: contain; background: #050505; }
+    .preview-placeholder { color: var(--muted); text-align: center; padding: 20px; }
+    .preview-placeholder .phase { color: var(--text); display: block; font-weight: 720; margin-bottom: 7px; }
+    .job-copy { padding: 19px 20px; min-width: 0; }
+    .job-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .status { display: inline-flex; align-items: center; gap: 7px; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 780; }
+    .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+    .status.completed::before { background: var(--accent); }
+    .status.failed::before, .status.expired::before { background: var(--danger); }
+    .status.active::before { background: var(--warning); }
+    .job-id { color: var(--muted); font-family: ui-monospace, monospace; font-size: .7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 190px; }
+    .prompt { margin: 18px 0; font-size: 1rem; line-height: 1.45; overflow-wrap: anywhere; }
+    .facts { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 17px; }
+    .fact { color: var(--ink-2); border: 1px solid var(--line); background: var(--fill); border-radius: 99px; padding: 5px 8px; font-size: .7rem; }
+    .error-copy { color: var(--danger); font-size: .8rem; line-height: 1.45; margin: 0 0 16px; }
+    .job-actions { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+    .job-actions a { text-decoration: none; }
+    .timestamp { color: var(--muted); font-size: .72rem; margin-left: auto; }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    @media (max-width: 900px) {
+      .composer { position: relative; top: auto; max-height: none; }
+    }
+    @media (max-width: 620px) {
+      .shell { padding: 0 14px 35px; }
+      header { min-height: 68px; }
+      main { padding-top: 28px; }
+      .job { grid-template-columns: 1fr; }
+      .preview { min-height: 190px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .field-row { grid-template-columns: 1fr; gap: 0; }
+      .timestamp { width: 100%; margin: 4px 0 0; }
+      .panel-head, .panel-body { padding-left: 17px; padding-right: 17px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+    details { margin-bottom: 20px; }
+    summary { cursor: pointer; min-height: 44px; padding: 10px 0; font-size: .875rem; font-weight: 500; }
+    details[open] summary { margin-bottom: 12px; }
+    .shell { max-width: 1280px; padding-top: 146px; }
+    header { position: fixed; top: 16px; left: 16px; right: 16px; z-index: 5; height: 90px; min-height: 90px; padding: 0 20px; border-radius: 45px; }
+    header, .panel { background: var(--glass); border: 0; -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); box-shadow: inset 0 1px 0 var(--glass-hi); }
+    /* Match Reel Maestro: the gradient edge overlaps the inset highlight,
+       instead of adding a separate border pixel outside it. */
+    header::before, .panel::before {
+      content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+      background: linear-gradient(180deg, var(--edge-top), var(--edge-bot));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+    }
+    main { padding-top: 0; }
+    .eyebrow { color: var(--muted); font-weight: 500; text-transform: none; }
+    h1 { font-size: clamp(2.25rem, 5vw, 3.5rem); line-height: 1.05; letter-spacing: -.03em; font-weight: 600; }
+    .composer { top: 122px; max-height: calc(100vh - 138px); }
+    .button { min-height: 44px; border: 0; border-radius: 999px; font-weight: 500; }
+    .button-primary { background: linear-gradient(135deg, var(--accent-2), var(--accent)); box-shadow: inset 0 1px 0 var(--glass-hi); }
+    input, textarea, select { border-radius: 16px; }
+    .job { border: 0; border-radius: 20px; }
+    .job-id, .timestamp { font-family: "JetBrains Mono", monospace; }
+    .status.completed::before { background: var(--ok); }
+    progress, .check input { accent-color: var(--ink-1); }
+    @media (prefers-reduced-transparency: reduce) { header, .panel { background: var(--canvas); backdrop-filter: none; } }
+    @media (max-width: 900px) { .composer { top: auto; max-height: none; } }
+    @media (max-width: 620px) { .shell { padding-top: 130px; } main { padding-top: 0; } }
+
+    a { color: inherit; text-decoration: none; }
+    header { gap: 8px; padding: 0 12px 0 18px; }
+    header .brand { font-size: 1.40625rem; font-weight: 600; white-space: nowrap; }
+    .spacer { flex: 1; }
+    .nav { display: flex; align-items: center; gap: 2px; }
+    .nav a { padding: 10px 12px; min-height: 44px; border-radius: 999px; color: var(--muted); font-size: .9375rem; font-weight: 500; }
+    .nav a[aria-current="page"] { color: var(--text); background: var(--fill); }
+    .nav .button { font-size: .9375rem; }
+    .new-video-link { width: auto; white-space: nowrap; display: inline-flex; align-items: center; padding: 0 18px; }
+    .bulk-delete { width: auto; white-space: nowrap; color: var(--danger); background: var(--fill); padding: 0 16px; }
+    .view { margin-bottom: 48px; }
+    .new-page { max-width: 760px; margin: 0 auto 48px; }
+    .composer { position: relative; top: auto; max-height: none; overflow: hidden; }
+    .create-heading { padding: 36px 36px 0; }
+    .composer .panel-body { padding: 24px 36px 28px; }
+    .new-page h1 { font-size: clamp(2rem, 4vw, 3.5rem); }
+    .page-title { font-size: 2rem; line-height: 1.15; letter-spacing: -.02em; margin: 0; font-weight: 600; }
+    .page-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+    .jobs { padding: 0; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+    .jobs .empty { grid-column: 1 / -1; }
+    .job { display: flex; flex-direction: column; background: var(--glass); }
+    .preview { background: var(--canvas); border: 0; min-height: 200px; aspect-ratio: 16 / 9; }
+    .preview video { max-height: 280px; }
+    .job-copy { flex: 1; }
+    .settings-page { max-width: 920px; margin: 0 auto 48px; }
+    .settings-group { margin-top: 24px; padding: 24px; }
+    .settings-group h2 { font-size: 1.25rem; font-weight: 600; margin: 0 0 20px; }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .setting-label { font-size: .9375rem; font-weight: 500; }
+    .seg { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--fill); }
+    .seg button { min-height: 44px; padding: 0 16px; color: var(--muted); background: transparent; border: 0; border-radius: 999px; }
+    .seg button[aria-pressed="true"] { color: var(--text); background: var(--on-glass-pill); box-shadow: inset 0 1px 0 var(--glass-hi); }
+    #activityDialog { position: fixed; inset: 122px 24px auto auto; margin: 0; width: min(440px, calc(100% - 32px)); max-height: calc(100dvh - 142px); padding: 24px; border: 0; border-radius: 24px; color: var(--text); background: var(--glass-el); backdrop-filter: blur(40px) saturate(160%); box-shadow: inset 0 1px 0 var(--glass-hi), var(--el-shadow); }
+    #activityDialog::backdrop { background: transparent; }
+    .activity-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .activity-heading h2 { margin: 0; font-size: 1.25rem; }
+    .activity-job { padding: 20px 0; }
+    .activity-job + .activity-job { border-top: 1px solid var(--hair); }
+    .activity-job .status { text-transform: none; letter-spacing: .01em; }
+    .activity-job h3 { margin: 10px 0; font-size: .9375rem; line-height: 1.5; font-weight: 500; overflow-wrap: anywhere; }
+    .activity-job .hint { margin-bottom: 12px; }
+    @media (max-width: 700px) {
+      header { height: 168px; flex-wrap: wrap; align-content: center; border-radius: 24px; padding: 8px 12px; }
+      header .spacer { display: none; }
+      header .brand { flex: 1; }
+      header .bulk-delete { padding: 0 12px; }
+      .nav { order: 3; width: 100%; justify-content: center; }
+      .shell { padding-top: 200px; }
+      .page-heading { align-items: flex-start; flex-wrap: wrap; }
+      .create-heading { padding: 24px 20px 0; }
+      .composer .panel-body { padding: 24px 20px; }
+      .setting-row { align-items: flex-start; flex-direction: column; gap: 16px; }
+      .jobs { grid-template-columns: minmax(0, 1fr); }
+      #activityDialog { top: 192px; right: 16px; max-height: calc(100dvh - 212px); }
+    }
+    @media (prefers-reduced-transparency: reduce) { #activityDialog { background: var(--canvas); backdrop-filter: none; } }
+
+    .jobs { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 24px; row-gap: 32px; }
+    .project-card { position: relative; min-width: 0; }
+    .project { display: block; min-width: 0; border-radius: 20px; }
+    .tile-selection { -webkit-tap-highlight-color: transparent; position: absolute; z-index: 2; top: 8px; right: 8px; width: 44px; height: 44px; display: grid; place-items: center; cursor: pointer; }
+    .project-select { width: 24px; height: 24px; margin: 0; accent-color: var(--ink-1); cursor: pointer; }
+    .tile { position: relative; aspect-ratio: 16 / 9; border-radius: 20px; background: var(--fill); overflow: hidden; }
+    .tile .poster { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+    .tile.vertical .poster { object-fit: contain; }
+    .tile-placeholder { display: grid; place-items: center; height: 100%; color: var(--muted); font-size: 2rem; }
+    .tile-status { position: absolute; left: 12px; bottom: 12px; padding: 4px 10px; border-radius: 999px; font-size: .75rem; background: var(--glass-el); }
+    .project > h2 { margin: 14px 0 6px; font-size: .875rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .project > .hint { margin: 0; }
+    .video-page > .page-heading { justify-content: space-between; }
+    #videoDetail .job { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; background: transparent; overflow: visible; }
+    #videoDetail .job-copy { order: -1; padding: 24px; }
+    .detail-heading { font-size: 1.25rem; font-weight: 600; margin: 0 0 20px; }
+    #videoDetail .job-top { flex-wrap: wrap; }
+    #videoDetail .preview { overflow: hidden; align-self: start; min-height: 260px; border-radius: 24px; background: var(--canvas); position: sticky; top: 122px; }
+    #videoDetail .preview video { position: absolute; inset: 0; max-height: none; width: 100%; height: 100%; object-fit: contain; }
+    #videoDetail .facts { display: flex; flex-wrap: wrap; gap: 7px; }
+    #videoDetail .fact { max-width: 100%; overflow-wrap: anywhere; }
+    #videoDetail .job-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; border-top: 1px solid var(--hair); padding-top: 20px; }
+    #videoDetail .job-actions .button { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; padding: 10px 16px; font-size: .875rem; font-weight: 500; }
+    #videoDetail .job-actions .delete-job { color: var(--danger); background: transparent; box-shadow: inset 0 0 0 1px var(--hair); }
+    #videoDetail .job-actions .delete-job:hover { background: var(--fill); }
+    #videoDetail .job-actions .timestamp { margin: 4px 0 0; text-align: center; }
+    @media (max-width: 1000px) { .jobs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 700px) {
+      .jobs { gap: 20px 14px; }
+      #videoDetail .job { grid-template-columns: minmax(0, 1fr); }
+      #videoDetail .preview { position: relative; top: auto; min-height: 180px; }
+      #videoDetail .job-copy { order: 1; }
+      #videoDetail .preview video { max-height: 60dvh; }
+      .video-page > .page-heading { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell" id="appShell">
+    <header>
+      <a class="brand" href="#projects"><img class="mark" src="/assets/icon.png" alt="" width="29" height="29"> Reel Video</a>
+      <span class="spacer"></span>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#projects" data-route="projects">Videos</a>
+        <a href="#settings" data-route="settings">Settings</a>
+        <button class="button button-quiet" id="activityButton" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="activityDialog">Activity</button>
+      </nav>
+      <button class="button bulk-delete" id="bulkDeleteButton" type="button" hidden>Delete</button>
+      <a class="button button-primary new-video-link" href="#new" id="newVideoLink">New video</a>
+    </header>
+
+    <main id="studio" aria-labelledby="projectsTitle">
+      <div id="connectionNotice" role="alert"></div>
+      <section id="newPage" class="view new-page" aria-labelledby="pageTitle" hidden>
+        <section class="panel composer" aria-labelledby="pageTitle">
+          <div class="create-heading">
+            <div class="eyebrow">AI Video Generator</div>
+            <h1 id="pageTitle" tabindex="-1">Turn a thought into motion.</h1>
+            <p class="lead">Describe one precise scene and bring your ideas to life.</p>
+          </div>
+          <form class="panel-body" id="generationForm">
+            <div class="field">
+              <label for="prompt">Prompt</label>
+              <textarea id="prompt" name="prompt" required maxlength="4000" placeholder="A quiet coastal train crossing a weathered bridge at blue hour…"></textarea>
+            </div>
+            <details id="customize"><summary>Customize</summary>
+            <div class="field">
+              <label for="model">Model</label>
+              <select id="model" name="model" required disabled><option>Loading models…</option></select>
+            </div>
+            <div id="conditioningControls" hidden>
+              <div class="field">
+                <label for="inputMode">Input mode</label>
+                <select id="inputMode"><option value="text">Text only</option><option value="frames">First / last frames</option><option value="references">General references</option></select>
+              </div>
+              <div class="field image-slots" id="imageSlots"></div>
+              <div class="field">
+                <label for="steps">Inference steps</label>
+                <input id="steps" type="number" min="2" max="100" step="1" value="25" inputmode="numeric" required>
+                <p class="hint" id="stepsHint">25 sigma grid points means 24 model evaluations.</p>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="duration">Duration</label>
+                <select id="duration" name="duration" required></select>
+              </div>
+              <div class="field">
+                <label for="size">Canvas</label>
+                <select id="size" name="size" required></select>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="exportType">Delivery</label>
+                <select id="exportType" name="export" required></select>
+              </div>
+              <div class="field">
+                <label for="seed">Seed</label>
+                <input id="seed" name="seed" type="number" min="0" max="2147483647" step="1" required inputmode="numeric">
+              </div>
+            </div>
+            <fieldset>
+              <legend>Sound</legend>
+              <label class="check"><input id="audio" type="checkbox" checked> Include generated audio in delivery</label>
+            </fieldset>
+            </details>
+            <button class="button button-primary" id="generateButton" type="submit" disabled>Generate video</button>
+            <div id="submitNotice" role="alert" aria-live="assertive"></div>
+            <div class="notice error" id="reconcileNotice" role="alert" aria-live="assertive" hidden>
+              <span id="reconcileMessage">An earlier submission needs reconciliation. No automatic resubmission will occur.</span>
+              <button class="button button-quiet" id="reconcileButton" type="button">Reconcile request</button>
+            </div>
+          </form>
+        </section>
+      </section>
+      <section id="projectsPage" class="view projects-page" aria-labelledby="projectsTitle">
+        <div class="page-heading">
+          <div><h1 class="page-title" id="projectsTitle" tabindex="-1">Your videos</h1></div>
+          <div class="history-head"><span class="poll-state" id="pollState" aria-live="polite"></span><button class="button button-quiet" id="refreshButton" type="button">Refresh</button></div>
+        </div>
+        <div id="projectNotice" role="alert"></div>
+        <div class="jobs" id="jobs" aria-live="polite" aria-busy="true"><div class="empty">Loading videos…</div></div>
+      </section>
+      <section id="videoPage" class="view video-page" aria-labelledby="videoTitle" hidden>
+        <div class="page-heading"><a class="button button-quiet" href="#projects">← Back to projects</a><h1 class="sr-only" id="videoTitle" tabindex="-1">Video details</h1><button class="button button-quiet" id="refreshVideo" type="button">Refresh</button></div>
+        <div id="videoNotice" role="alert"></div>
+        <div id="videoDetail"><p class="hint">Opening your video…</p></div>
+      </section>
+      <section id="settingsPage" class="view settings-page" aria-labelledby="settingsTitle" hidden>
+        <h1 class="page-title" id="settingsTitle" tabindex="-1">Settings</h1>
+        <section class="panel settings-group" aria-labelledby="appearanceTitle">
+          <h2 id="appearanceTitle">Appearance</h2>
+          <div class="setting-row">
+            <div><span class="setting-label" id="themeLabel">Theme</span><p class="hint">System follows your device</p></div>
+            <div class="seg" role="group" aria-labelledby="themeLabel">
+              <button type="button" data-theme-choice="system" aria-pressed="false">System</button>
+              <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+              <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+            </div>
+          </div>
+          <div id="settingsNotice" role="status"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="activityDialog" aria-labelledby="activityTitle">
+    <div class="activity-heading"><h2 id="activityTitle">Activity</h2><button class="button button-quiet" id="closeActivity" type="button" aria-label="Close activity">Close</button></div>
+    <div id="activityNotice" role="alert"></div>
+    <div id="activityJobs"></div>
+  </dialog>
+
+  <a class="corner-logo-link" href="https://spunkytensor.ai">
+    <img class="corner-logo" src="/logo.png" alt="Spunky Tensor" width="88" height="88">
+  </a>
+
+  <template id="emptyTemplate"><div class="empty"><strong>Your next video starts here</strong>Create a video to start your collection.</div></template>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const DEFAULT_STEPS = 25;
+      const $ = (id) => document.getElementById(id);
+      const els = {
+        form: $("generationForm"), prompt: $("prompt"), model: $("model"),
+        duration: $("duration"), size: $("size"), exportType: $("exportType"), seed: $("seed"), audio: $("audio"),
+        conditioning: $("conditioningControls"), inputMode: $("inputMode"), imageSlots: $("imageSlots"), steps: $("steps"), stepsHint: $("stepsHint"),
+        generateButton: $("generateButton"), submitNotice: $("submitNotice"), reconcileNotice: $("reconcileNotice"), reconcileMessage: $("reconcileMessage"),
+        reconcileButton: $("reconcileButton"), jobs: $("jobs"), pollState: $("pollState"), refreshButton: $("refreshButton")
+      };
+      let models = [];
+      let jobs = [];
+      let detailJob = null;
+      let detailRequestId = null;
+      let authenticated = false;
+      let pollTimer = null;
+      let pollDelay = 30000;
+      let pendingSubmission = null;
+      let submitting = false;
+      let bulkDeleting = false;
+      const selectedJobIds = new Set();
+      let imageCapability = null;
+      const slotVersions = { first: 0, last: 0, reference1: 0, reference2: 0 };
+      const uploaded = { first: null, last: null, reference1: null, reference2: null };
+      const slotState = { first: "", last: "", reference1: "", reference2: "" };
+      try { pendingSubmission = JSON.parse(sessionStorage.getItem("reel-video-pending") || "null"); } catch (_) {}
+
+      function savePending(value) {
+        pendingSubmission = value;
+        if (value) sessionStorage.setItem("reel-video-pending", JSON.stringify(value));
+        else sessionStorage.removeItem("reel-video-pending");
+        updateGenerateState();
+      }
+
+      function uncertainNotice(message = "An earlier submission needs reconciliation.") {
+        els.reconcileMessage.textContent = `${message} No automatic resubmission will occur.`;
+        updateGenerateState();
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>'"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+      }
+
+      function setNotice(target, message, kind = "error", action = "") {
+        target.innerHTML = message ? `<div class="notice ${kind}">${escapeHtml(message)}${action}</div>` : "";
+      }
+
+      async function api(url, options = {}) {
+        const response = await fetch(url, { credentials: "same-origin", ...options });
+        if (response.status === 401) {
+          // Authentication rejects before side effects, so one retry is safe.
+          // A lost response or 5xx is different: reconcile the original job key.
+          const session = await fetch("/session", { method: "POST", credentials: "same-origin" });
+          if (session.ok) return fetch(url, { credentials: "same-origin", ...options });
+          throw Object.assign(new Error("Studio connection expired. Reload to reconnect."), { status: 401 });
+        }
+        return response;
+      }
+
+      function randomSeed() {
+        const values = new Uint32Array(1);
+        crypto.getRandomValues(values);
+        return values[0] & 0x7fffffff;
+      }
+
+      function optionsFor(select, values, labeler = String) {
+        select.replaceChildren(...values.map((value) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = labeler(value);
+          return option;
+        }));
+      }
+
+      function updateModelSettings() {
+        const model = models.find((item) => item.id === els.model.value);
+        if (!model) return;
+        optionsFor(els.duration, model.supported_durations || [5], (v) => `${v} seconds`);
+        optionsFor(els.size, model.supported_sizes || ["960x544"]);
+        optionsFor(els.exportType, model.local?.exports || ["original"], (v) => v === "original" ? "Original" : v.toUpperCase());
+        const audioRequired = model.local?.audio === "required";
+        els.audio.checked = audioRequired || els.audio.checked;
+        els.audio.disabled = audioRequired;
+        const local = model.local || {};
+        imageCapability = Array.isArray(local.input_modes) && local.input_modes.includes("frames") && local.images?.upload_url && local.steps?.parameter === "num_inference_steps" ? local : null;
+        els.conditioning.hidden = !imageCapability;
+        if (imageCapability) {
+          els.steps.min = local.steps.min; els.steps.max = local.steps.max;
+          if (!els.steps.value) els.steps.value = DEFAULT_STEPS;
+          renderSlots();
+        } else {
+          els.inputMode.value = "text";
+          clearImages();
+        }
+      }
+
+      function sameOriginUrl(value) {
+        try { const url = new URL(value, location.href); return url.origin === location.origin && ["http:", "https:"].includes(url.protocol) ? url.href : ""; }
+        catch (_) { return ""; }
+      }
+
+      function activeSlotNames() {
+        return els.inputMode.value === "frames" ? ["first", "last"] : els.inputMode.value === "references" ? ["reference1", "reference2"] : [];
+      }
+
+      function clearImages() {
+        Object.keys(uploaded).forEach(key => { slotVersions[key]++; uploaded[key] = null; slotState[key] = ""; });
+        if (els.imageSlots) els.imageSlots.replaceChildren();
+      }
+
+      function renderSlots() {
+        const labels = { first: "First frame", last: "Last frame", reference1: "Reference 1", reference2: "Reference 2" };
+        els.imageSlots.replaceChildren(...activeSlotNames().map(name => {
+          const value = uploaded[name];
+          const row = document.createElement("div"); row.className = "image-slot"; row.dataset.slot = name;
+          const preview = document.createElement(value ? "img" : "div");
+          if (value) { const safe = sameOriginUrl(value.url); if (safe) { preview.src = safe; preview.alt = `${labels[name]} preview`; } }
+          else { preview.className = "slot-copy"; preview.textContent = "No image"; }
+          const copy = document.createElement("div"); copy.className = "slot-copy"; copy.textContent = labels[name];
+          if (value) copy.title = value.id;
+          if (slotState[name]) { copy.textContent = slotState[name] === "busy" ? "Checking and uploading…" : "Image unavailable — reupload or remove"; copy.classList.add("upload-state"); }
+          const actions = document.createElement("div"); actions.className = "slot-actions";
+          const input = document.createElement("input"); input.type = "file"; input.accept = "image/png,image/jpeg,image/webp"; input.dataset.slot = name;
+          input.tabIndex = -1; // The visible, labeled upload button is the keyboard target.
+          input.setAttribute("aria-label", `${labels[name]} image`);
+          const choose = document.createElement("button"); choose.type = "button"; choose.className = "button button-quiet upload-image"; choose.dataset.slot = name; choose.textContent = value ? "Replace" : "Upload";
+          choose.setAttribute("aria-label", `${choose.textContent} ${labels[name]}`);
+          actions.append(input, choose);
+          if (value || slotState[name]) { const remove = document.createElement("button"); remove.type = "button"; remove.className = "button button-quiet remove-image"; remove.dataset.slot = name; remove.textContent = "Remove"; remove.setAttribute("aria-label", `Remove ${labels[name]}`); actions.append(remove); }
+          row.append(preview, copy, actions); return row;
+        }));
+        updateGenerateState();
+      }
+
+      function updateGenerateState() {
+        const names = activeSlotNames();
+        const busy = names.some(n => slotState[n]);
+        const valid = els.inputMode.value === "text" || names.some(n => uploaded[n]);
+        els.generateButton.disabled = !models.length || submitting || Boolean(pendingSubmission) || busy || !valid;
+        els.reconcileNotice.hidden = !pendingSubmission;
+        els.reconcileButton.disabled = submitting;
+      }
+
+      async function inspectImage(file) {
+        const caps = imageCapability.images;
+        if (!caps.mime_types.includes(file.type)) throw new Error("Choose a static PNG, JPEG, or WebP image.");
+        if (file.size > caps.max_upload_bytes) throw new Error("Image exceeds the 8 MiB upload limit.");
+        const bitmap = await createImageBitmap(file);
+        const { width, height } = bitmap; bitmap.close();
+        if (width * height > caps.max_pixels || Math.max(width, height) > caps.max_dimension) throw new Error("Image exceeds the 12 MP or 8192 pixel dimension limit.");
+        if (els.inputMode.value === "references" && (width / height < caps.reference_aspect_ratio.min || width / height > caps.reference_aspect_ratio.max)) throw new Error("General references must have an aspect ratio from 1:2 through 2:1.");
+      }
+
+      async function uploadImage(slot, file) {
+        // Ignore late uploads after a replacement, removal, or input-mode change.
+        // Aborting a browser request alone cannot undo an upload already received.
+        const version = ++slotVersions[slot]; uploaded[slot] = null; slotState[slot] = "busy"; renderSlots();
+        try {
+          await inspectImage(file);
+          const response = await api(imageCapability.images.upload_url, { method: "POST", headers: { "Content-Type": file.type }, body: file });
+          if (!response.ok) { let message = `Upload failed (${response.status}).`; try { const body = await response.json(); message = body.error?.message || body.message || message; } catch (_) {} throw new Error(message); }
+          const body = await response.json();
+          if (version !== slotVersions[slot] || !activeSlotNames().includes(slot)) return;
+          const url = sameOriginUrl(body.url); if (!url || !/^image-[a-f0-9]{64}$/.test(body.id || "")) throw new Error("The upload service returned an invalid image URL.");
+          uploaded[slot] = { id: body.id, url }; slotState[slot] = ""; renderSlots();
+          if (!pendingSubmission && !activeSlotNames().some(n => slotState[n])) setNotice(els.submitNotice, "");
+        } catch (error) { if (version === slotVersions[slot]) { slotState[slot] = "missing"; renderSlots(); setNotice(els.submitNotice, error.message); } }
+      }
+
+      async function loadModels() {
+        const response = await api("/api/v1/videos/models");
+        if (!response.ok) throw new Error(`Models unavailable (${response.status})`);
+        const body = await response.json();
+        models = Array.isArray(body.data) ? body.data : [];
+        optionsFor(els.model, models.map((m) => m.id), (id) => models.find((m) => m.id === id)?.name || id);
+        els.model.disabled = !models.length;
+        els.generateButton.disabled = !models.length || Boolean(pendingSubmission);
+        if (models.length) updateModelSettings();
+        else setNotice(els.submitNotice, "No video models are currently available.");
+      }
+
+      function epoch(value) {
+        if (!value) return null;
+        return Number(value) * 1000;
+      }
+
+      function durationText(seconds) {
+        seconds = Math.max(0, Math.floor(seconds));
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        return h ? `${h}h ${m}m ${s}s` : m ? `${m}m ${s}s` : `${s}s`;
+      }
+
+      function elapsed(job) {
+        const start = epoch(job.local?.started_at);
+        if (job.status !== "in_progress" || !start) return "";
+        return `Elapsed ${durationText((Date.now() - start) / 1000)}`;
+      }
+
+      function progressMarkup(job) {
+        if (job.status !== "in_progress") return "";
+        const progress = job.local?.progress;
+        if (!progress || progress.unit !== "denoising_steps") {
+          return `<div class="hint"><progress aria-label="${escapeHtml(job.local?.phase || "Working")}"></progress>${escapeHtml(job.local?.phase || "Working")} · step progress not available yet</div>`;
+        }
+        const completed = Number(progress.completed), total = Number(progress.total);
+        if (!Number.isInteger(completed) || !Number.isInteger(total) || total < 1 || completed < 0 || completed > total) return "";
+        return `<div class="hint"><label for="progress-${escapeHtml(job.id)}">Denoising: ${completed} / ${total} steps (${Math.floor(completed / total * 100)}%)</label><progress id="progress-${escapeHtml(job.id)}" max="${total}" value="${completed}"></progress>${completed === total ? `${escapeHtml(job.local?.phase || "Post-processing")} · denoising complete, final video not ready yet` : "Actual completed denoising steps, not an overall time estimate"}</div>`;
+      }
+
+      function contentUrl(job) {
+        const urls = job.unsigned_urls;
+        if (!urls) return "";
+        let candidate = "";
+        if (typeof urls === "string") candidate = urls;
+        if (Array.isArray(urls)) {
+          const first = urls.find((v) => typeof v === "string") || urls.find((v) => v && typeof v.url === "string");
+          candidate = typeof first === "string" ? first : first?.url || "";
+        } else if (typeof urls === "object") {
+          const preferred = urls.video || urls.original || urls.download || Object.values(urls)[0];
+          candidate = typeof preferred === "string" ? preferred : preferred?.url || "";
+        }
+        try {
+          const parsed = new URL(candidate, location.href);
+          return parsed.origin === location.origin && ["http:", "https:"].includes(parsed.protocol) ? parsed.href : "";
+        } catch (_) { return ""; }
+      }
+
+      function resolutionKind(metadata) {
+        const source = metadata.source_size;
+        const delivery = metadata.delivery_size;
+        if (!source || !delivery || source === delivery) return "Native";
+        const area = (v) => String(v).split("x").reduce((a, b) => a * Number(b), 1);
+        return area(delivery) > area(source) ? "Upscaled" : "Resized";
+      }
+
+      function jobMarkup(job) {
+        const local = job.local || {};
+        const request = local.request || {};
+        const metadata = local.metadata || {};
+        const rawStatus = String(job.status || "unknown").toLowerCase();
+        const expired = Boolean(local.content_expired);
+        const status = expired ? "expired" : rawStatus;
+        const statusClass = ["completed", "failed", "expired"].includes(status) ? status : ["queued", "processing", "running", "in_progress"].includes(status) ? "active" : "";
+        const url = !expired && rawStatus === "completed" ? contentUrl(job) : "";
+        const phase = local.phase || (rawStatus === "completed" ? "Complete" : rawStatus.replaceAll("_", " "));
+        const prompt = request.prompt || job.prompt || "Prompt unavailable";
+        const facts = [
+          request.model && `Model ${request.model}`,
+          request.duration && `${request.duration}s requested`,
+          request.size && `${request.size} requested`,
+          metadata.source_size && `${metadata.source_size} source`,
+          metadata.delivery_size && `${metadata.delivery_size} delivery`,
+          metadata.source_size && metadata.delivery_size && resolutionKind(metadata),
+          metadata.frames && `${metadata.frames} frames`,
+          metadata.fps && `${metadata.fps} fps`,
+          metadata.seed !== undefined && `Seed ${metadata.seed}`,
+          metadata.scaling_method && metadata.scaling_method,
+          metadata.fit_policy && `${metadata.fit_policy} fit`,
+          metadata.video_frame_duration && `${Number(metadata.video_frame_duration).toFixed(3)}s video frames`,
+          metadata.container_duration && `${metadata.container_duration}s container`,
+          metadata.ai_generated && "AI-generated"
+        ].filter(Boolean);
+        if (local.workflow) facts.push(`Mode ${local.workflow}`);
+        const steps = metadata.sigma_grid_points ?? request.provider?.options?.local?.parameters?.num_inference_steps;
+        if (steps) facts.push(`${steps} sigma points`);
+        const imageCount = (request.frame_images?.length || 0) + (request.input_references?.length || 0);
+        if (imageCount) facts.push(`${imageCount} image${imageCount === 1 ? "" : "s"}`);
+        const error = job.error ? `${job.error.code ? `${job.error.code}: ` : ""}${job.error.message || "Generation failed"}` : "";
+        const preview = url
+          ? `<video controls preload="metadata" src="${escapeHtml(url)}"><a href="${escapeHtml(url)}">Download video</a></video>`
+          : `<div class="preview-placeholder"><span class="phase">${escapeHtml(expired ? "Content expired" : phase || "Waiting")}</span>${escapeHtml(expired ? "The server no longer retains this media." : "No preview is available yet.")}</div>`;
+        return `<article class="job" id="${escapeHtml(job.id)}" data-job-id="${escapeHtml(job.id)}">
+          <div class="preview">${preview}</div>
+          <aside class="job-copy panel" aria-label="Video information">
+            <h2 class="detail-heading">Video details</h2>
+            <div class="job-top"><span class="status ${statusClass}">${escapeHtml(status)}</span><span class="job-id" title="${escapeHtml(job.id)}">${escapeHtml(job.id)}</span></div>
+            <p class="prompt">${escapeHtml(prompt)}</p>
+            <div class="facts">${facts.map((v) => `<span class="fact">${escapeHtml(v)}</span>`).join("")}</div>
+            ${progressMarkup(job)}
+            ${error ? `<p class="error-copy">${escapeHtml(error)}</p>` : ""}
+            <div class="job-actions">
+              ${url ? `<a class="button button-primary" href="${escapeHtml(url)}" download>Download video</a>` : ""}
+              ${request.prompt ? `<button class="button reuse" type="button" data-job-id="${escapeHtml(job.id)}">Reuse settings</button>` : ""}
+              ${rawStatus === "in_progress" ? `<button class="button cancel-job" type="button" data-job-id="${escapeHtml(job.id)}" ${phase === "canceling" ? "disabled" : ""}>${phase === "canceling" ? "Canceling…" : "Cancel generation"}</button>` : ""}
+              ${["pending", "failed", "completed"].includes(rawStatus) ? `<button class="button delete-job" type="button" data-job-id="${escapeHtml(job.id)}">Delete video</button>` : ""}
+              ${rawStatus === "in_progress" ? `<span class="timestamp elapsed" data-job-id="${escapeHtml(job.id)}">${escapeHtml(elapsed(job))}</span>` : ""}
+            </div>
+          </aside>
+        </article>`;
+      }
+
+      function renderActivity() {
+        const count = jobs.filter(job => ["pending", "in_progress"].includes(job.status)).length;
+        $("activityButton").textContent = count ? `${count} in progress` : "Activity";
+        $("activityButton").setAttribute("aria-label", count ? `Activity: ${count} in progress` : "Activity");
+        if (!$("activityDialog").open) return;
+        const labels = {pending:"Waiting", in_progress:"Generating", completed:"Ready", failed:"Needs attention", canceled:"Stopped", cancelled:"Stopped"};
+        const markup = jobs.map(job => `<article class="activity-job">
+          <span class="status ${job.status === "in_progress" || job.status === "pending" ? "active" : escapeHtml(job.status)}">${escapeHtml(labels[job.status] || job.status)}</span>
+          <h3>${escapeHtml(job.local?.request?.prompt || "Video")}</h3>
+          ${["pending", "in_progress"].includes(job.status) ? `<p class="hint">${escapeHtml(job.local?.phase || "Waiting")} · <span class="elapsed" data-job-id="${escapeHtml(job.id)}">${escapeHtml(elapsed(job))}</span></p>` : ""}
+          ${job.status === "in_progress" && job.local?.progress?.unit === "denoising_steps" ? `<p class="hint">${escapeHtml(job.local.progress.completed)} / ${escapeHtml(job.local.progress.total)} steps</p>` : ""}
+          ${job.error ? `<p class="error-copy">${escapeHtml(job.error.message || job.error)}</p>` : ""}
+          <div class="job-actions"><button class="button button-quiet open-project" data-job-id="${escapeHtml(job.id)}" type="button">Open video</button>
+          ${job.status === "in_progress" ? `<button class="button button-quiet cancel-job" data-job-id="${escapeHtml(job.id)}" type="button">Cancel</button>` : ""}
+          ${job.status === "pending" ? `<button class="button button-quiet delete-job" data-job-id="${escapeHtml(job.id)}" type="button">Cancel</button>` : ""}</div>
+        </article>`).join("") || '<p class="hint">No work has been requested yet.</p>';
+        // Avoid replacing focused controls on unchanged polls.
+        const fingerprint = JSON.stringify(jobs);
+        if ($("activityJobs").dataset.fingerprint !== fingerprint) {
+          $("activityJobs").innerHTML = markup;
+          $("activityJobs").dataset.fingerprint = fingerprint;
+        }
+      }
+
+      function videoTitle(job) {
+        return (job.local?.request?.prompt || job.prompt || "Untitled video").split("\n")[0];
+      }
+      function tileMarkup(job) {
+        const title = videoTitle(job);
+        const size = job.local?.metadata?.delivery_size || job.local?.request?.size || "960x544";
+        const [width, height] = size.split("x").map(Number);
+        const format = width === height ? "Square" : width > height ? "Widescreen" : "Vertical";
+        const url = job.status === "completed" && !job.local?.content_expired ? contentUrl(job) : "";
+        const labels = {pending:"Waiting",in_progress:"Generating",failed:"Needs attention",completed:"Ready"};
+        const date = epoch(job.local?.created_at);
+        const dateLabel = date ? new Date(date).toLocaleDateString(undefined, {month:"short",day:"numeric"}) : "";
+        return `<div class="project-card"><label class="tile-selection"><input class="project-select" type="checkbox" data-job-id="${escapeHtml(job.id)}" aria-label="Select ${escapeHtml(title)}" ${selectedJobIds.has(String(job.id)) ? "checked" : ""}></label>
+        <a class="project" data-job-id="${escapeHtml(job.id)}" href="#video/${encodeURIComponent(job.id)}" aria-label="Open ${escapeHtml(title)}">
+          <div class="tile ${height >= width ? "vertical" : ""}">
+            ${url ? `<video class="poster" src="${escapeHtml(url)}#t=0.1" preload="metadata" muted playsinline tabindex="-1" aria-hidden="true"></video>` : '<div class="tile-placeholder" aria-hidden="true">▷</div>'}
+            ${!url ? `<span class="tile-status">${escapeHtml(job.local?.content_expired ? "Expired" : labels[job.status] || job.status)}</span>` : ""}
+          </div>
+          <h2 title="${escapeHtml(title)}">${escapeHtml(title)}</h2>
+          <p class="hint">${escapeHtml(format)}${dateLabel ? ` · ${escapeHtml(dateLabel)}` : ""}</p>
+        </a></div>`;
+      }
+
+      function updateBulkControls() {
+        const button = $("bulkDeleteButton");
+        button.hidden = selectedJobIds.size === 0;
+        button.disabled = bulkDeleting;
+        button.textContent = bulkDeleting ? "Deleting…" : `Delete${selectedJobIds.size > 1 ? ` (${selectedJobIds.size})` : ""}`;
+        els.jobs.querySelectorAll(".project-select").forEach(checkbox => {
+          checkbox.disabled = bulkDeleting;
+          checkbox.checked = selectedJobIds.has(checkbox.dataset.jobId);
+        });
+      }
+      function selectedVideoId() {
+        if (!location.hash.startsWith("#video/")) return null;
+        try { return decodeURIComponent(location.hash.slice(7)); } catch (_) { return ""; }
+      }
+      async function renderDetail() {
+        const id = selectedVideoId();
+        if (id === null) return;
+        let job = jobs.find(job => job.id === id) || (detailJob?.id === id ? detailJob : null);
+        const host = $("videoDetail");
+        if (!job) {
+          if (host.dataset.jobId !== id || host.querySelector(".job")) { delete host.dataset.fingerprint; host.innerHTML = '<p class="hint">Opening your video…</p>'; host.dataset.jobId = id; }
+          if (!authenticated || detailRequestId === id) return;
+          detailRequestId = id;
+          try {
+            const response = await api(`/api/v1/videos/${encodeURIComponent(id)}`);
+            if (!response.ok) throw new Error(response.status === 404 ? "This video is no longer available." : "Could not open this video. Use Refresh to try again.");
+            const result = await response.json();
+            if (selectedVideoId() !== id) return;
+            detailJob = result;
+            job = result;
+          } catch (error) {
+            if (selectedVideoId() === id) setNotice(host, error.message);
+            return;
+          } finally { if (detailRequestId === id) detailRequestId = null; }
+        }
+        if (selectedVideoId() !== id) return;
+        $("videoTitle").textContent = videoTitle(job);
+        document.title = `${videoTitle(job)} — Reel Video`;
+        const fingerprint = JSON.stringify(job);
+        if (host.dataset.fingerprint === fingerprint && host.dataset.jobId === id) return;
+        const template = document.createElement("template");
+        template.innerHTML = jobMarkup(job);
+        const next = template.content.firstElementChild;
+        // Preserve the player even when progress or other metadata changes.
+        const oldPlayer = host.querySelector("video");
+        const nextPlayer = next.querySelector("video");
+        if (host.dataset.jobId === id && oldPlayer && nextPlayer && oldPlayer.getAttribute("src") === nextPlayer.getAttribute("src")) {
+          host.querySelector(".job-copy").replaceWith(next.querySelector(".job-copy"));
+        } else {
+          host.replaceChildren(next);
+        }
+        host.dataset.jobId = id;
+        host.dataset.fingerprint = fingerprint;
+      }
+
+      function renderJobs() {
+        renderActivity();
+        void renderDetail();
+        const available = new Set(jobs.map(job => String(job.id)));
+        for (const id of selectedJobIds) if (!available.has(id)) selectedJobIds.delete(id);
+        updateBulkControls();
+        els.jobs.setAttribute("aria-busy", "false");
+        if (!jobs.length) {
+          els.jobs.innerHTML = $("emptyTemplate").innerHTML;
+          return;
+        }
+        // Preserve playing video elements and keyboard focus across unchanged polls.
+        const existing = new Map([...els.jobs.querySelectorAll(".project-card")].map(node => [node.querySelector(".project").dataset.jobId, node]));
+        els.jobs.querySelectorAll(".empty").forEach(node => node.remove());
+        for (const [index, job] of jobs.entries()) {
+          const fingerprint = JSON.stringify([job.id, videoTitle(job), job.status, job.local?.content_expired, contentUrl(job), job.local?.request?.size, job.local?.metadata?.delivery_size]);
+          let node = existing.get(String(job.id));
+          if (!node || node.dataset.fingerprint !== fingerprint) {
+            const template = document.createElement("template");
+            template.innerHTML = tileMarkup(job);
+            const replacement = template.content.firstElementChild;
+            replacement.dataset.fingerprint = fingerprint;
+            if (node) node.replaceWith(replacement);
+            node = replacement;
+          }
+          node.querySelector(".project-select").checked = selectedJobIds.has(String(job.id));
+          node.querySelector(".project-select").disabled = bulkDeleting;
+          if (els.jobs.children[index] !== node) els.jobs.insertBefore(node, els.jobs.children[index] || null);
+          existing.delete(String(job.id));
+        }
+        for (const node of existing.values()) node.remove();
+      }
+
+      function schedulePoll(delay = pollDelay) {
+        clearTimeout(pollTimer);
+        if (authenticated) pollTimer = setTimeout(() => refreshJobs(true), delay);
+      }
+
+      async function refreshJobs(background = false) {
+        clearTimeout(pollTimer);
+        if (!background) els.pollState.textContent = "Refreshing…";
+        els.refreshButton.disabled = true;
+        try {
+          const response = await api("/api/v1/videos");
+          if (!response.ok) throw new Error(`History unavailable (${response.status})`);
+          const body = await response.json();
+          jobs = Array.isArray(body.data) ? body.data : [];
+          renderJobs();
+          pollDelay = jobs.some(job => ["pending", "in_progress"].includes(job.status)) ? 5000 : 30000;
+          els.pollState.textContent = "Updated just now";
+          schedulePoll();
+        } catch (error) {
+          if (error.status !== 401) {
+            pollDelay = Math.min(Math.max(pollDelay * 2, 60000), 120000);
+            els.pollState.textContent = `Refresh failed · retrying in ${pollDelay / 1000}s`;
+            schedulePoll();
+          }
+        } finally {
+          els.refreshButton.disabled = false;
+        }
+      }
+
+      function payloadFromForm() {
+        const payload = {
+          model: els.model.value,
+          prompt: els.prompt.value.trim(),
+          duration: Number(els.duration.value),
+          size: els.size.value,
+          seed: Number(els.seed.value),
+          generate_audio: els.audio.checked,
+          local: { export: els.exportType.value }
+        };
+        if (imageCapability) {
+          payload.provider = { options: { local: { parameters: { num_inference_steps: Number(els.steps.value) } } } };
+          if (els.inputMode.value === "frames") payload.frame_images = activeSlotNames().filter(n => uploaded[n]).map(n => ({ type: "image_url", image_url: { url: uploaded[n].url }, frame_type: `${n}_frame` }));
+          if (els.inputMode.value === "references") payload.input_references = activeSlotNames().filter(n => uploaded[n]).map(n => ({ type: "image_url", image_url: { url: uploaded[n].url } }));
+        }
+        return payload;
+      }
+
+      async function submitGeneration(submission, isReconcile = false) {
+        if (submitting) return;
+        submitting = true;
+        updateGenerateState();
+        setNotice(els.submitNotice, isReconcile ? "Reconciling this request…" : "Submitting request…", "");
+        try {
+          // Persist BEFORE the POST so a lost response cannot cause a new job on
+          // refresh. This includes the prompt: no credentials, but potentially private input.
+          savePending(submission);
+          const response = await api("/api/v1/videos", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Idempotency-Key": submission.key },
+            body: JSON.stringify(submission.payload)
+          });
+          if (response.status === 202 || response.ok) {
+            const accepted = await response.json();
+            savePending(null);
+            setNotice(els.submitNotice, "");
+            els.seed.value = randomSeed();
+            await refreshJobs();
+            if (!jobs.some(job => job.id === accepted.id)) {
+              jobs.unshift({...accepted, local: {...accepted.local, request: submission.payload}});
+              renderJobs();
+            }
+            openActivity();
+            return;
+          }
+          let detail = `Request rejected (${response.status})`;
+          try { const body = await response.json(); detail = body.error?.message || body.message || detail; } catch (_) {}
+          if (response.status >= 500) throw new Error(detail);
+          savePending(null);
+          setNotice(els.submitNotice, detail);
+        } catch (error) {
+          if (error.status === 401) return;
+          uncertainNotice(`The result is uncertain: ${error.message}.`);
+        } finally {
+          submitting = false;
+          updateGenerateState();
+        }
+      }
+
+      async function reuse(job) {
+        if (location.hash !== "#new") { history.pushState(null, "", "#new"); navigate(); }
+        const request = job.local?.request || {};
+        if (request.model && models.some((m) => m.id === request.model)) els.model.value = request.model;
+        updateModelSettings();
+        if (request.prompt) els.prompt.value = request.prompt;
+        for (const [select, value] of [[els.duration, request.duration], [els.size, request.size], [els.exportType, request.local?.export || request.export]]) {
+          if (value !== undefined && [...select.options].some((o) => o.value === String(value))) select.value = value;
+        }
+        if (Number.isInteger(request.seed)) els.seed.value = request.seed;
+        if (typeof request.generate_audio === "boolean" && !els.audio.disabled) els.audio.checked = request.generate_audio;
+        if (imageCapability) {
+          const steps = request.provider?.options?.local?.parameters?.num_inference_steps;
+          els.steps.value = Number.isInteger(steps) ? steps : DEFAULT_STEPS;
+          els.steps.dispatchEvent(new Event("input"));
+          clearImages();
+          const entries = request.frame_images?.length ? request.frame_images.map(v => [v.frame_type === "last_frame" ? "last" : "first", v.image_url?.url]) : (request.input_references || []).map((v, i) => [`reference${i + 1}`, v.image_url?.url]);
+          els.inputMode.value = request.frame_images?.length ? "frames" : request.input_references?.length ? "references" : "text";
+          const unavailable = [];
+          const versions = { ...slotVersions };
+          entries.forEach(([slot]) => { slotState[slot] = "busy"; });
+          renderSlots();
+          for (const [slot, raw] of entries) {
+            if (versions[slot] !== slotVersions[slot]) continue;
+            const url = sameOriginUrl(raw);
+            let available = false;
+            try { if (url) available = (await api(url, { method: "HEAD" })).ok; } catch (_) {}
+            if (versions[slot] !== slotVersions[slot]) continue;
+            slotState[slot] = available ? "" : "missing";
+            if (available) uploaded[slot] = { id: url.split("/").pop(), url };
+            else unavailable.push(slot);
+          }
+          renderSlots();
+          if (unavailable.length) setNotice(els.submitNotice, "One or more conditioning images expired or are unavailable. Reupload them before generating.");
+        }
+        $("customize").open = true;
+        els.prompt.focus();
+        els.form.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      }
+
+      let themeChoice = "system";
+      try { themeChoice = localStorage.getItem("reel-video-theme") || "system"; } catch (_) {}
+      const deviceTheme = matchMedia("(prefers-color-scheme: dark)");
+      function applyTheme() {
+        document.documentElement.dataset.theme = themeChoice === "system" ? (deviceTheme.matches ? "dark" : "light") : themeChoice;
+        document.querySelectorAll("[data-theme-choice]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.themeChoice === themeChoice)));
+      }
+      document.querySelectorAll("[data-theme-choice]").forEach(button => button.addEventListener("click", () => {
+        themeChoice = button.dataset.themeChoice;
+        applyTheme();
+        try { localStorage.setItem("reel-video-theme", themeChoice); setNotice($("settingsNotice"), ""); }
+        catch (_) { setNotice($("settingsNotice"), "Appearance changed for this visit, but your browser could not remember it."); }
+      }));
+      deviceTheme.addEventListener("change", applyTheme);
+      applyTheme();
+
+      function closeActivity() { $("activityDialog").close(); $("activityButton").setAttribute("aria-expanded", "false"); $("activityJobs").replaceChildren(); delete $("activityJobs").dataset.fingerprint; }
+      function openActivity() {
+        if (!$("activityDialog").open) $("activityDialog").showModal();
+        renderActivity();
+        $("activityButton").setAttribute("aria-expanded", "true");
+      }
+      $("activityButton").addEventListener("click", openActivity);
+      $("closeActivity").addEventListener("click", closeActivity);
+      $("activityDialog").addEventListener("cancel", event => { event.preventDefault(); closeActivity(); });
+      $("activityDialog").addEventListener("click", event => { if (event.target === $("activityDialog")) {
+        const rect = event.target.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeActivity();
+      }});
+      function navigate(focus = true) {
+        const route = selectedVideoId() !== null ? "video" : ["new", "settings"].includes(location.hash.slice(1)) ? location.hash.slice(1) : "projects";
+        if (route !== "projects" && selectedJobIds.size) { selectedJobIds.clear(); updateBulkControls(); }
+        closeActivity();
+        for (const name of ["projects", "new", "settings", "video"]) $(name + "Page").hidden = name !== route;
+        document.querySelectorAll("[data-route]").forEach(link => {
+          if (link.dataset.route === route || route === "video" && link.dataset.route === "projects") link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
+        });
+        $("newVideoLink").hidden = route === "new";
+        const title = route === "new" ? "pageTitle" : route + "Title";
+        $("studio").setAttribute("aria-labelledby", title);
+        document.title = `${route === "new" ? "Create a video" : route === "settings" ? "Settings" : "Your videos"} — Reel Video`;
+        if (route !== "video") $("videoDetail").querySelectorAll("video").forEach(video => video.pause());
+        if (route === "video") {
+          if ($("videoDetail").dataset.jobId !== selectedVideoId()) { $("videoTitle").textContent = "Video details"; $("videoDetail").replaceChildren(); delete $("videoDetail").dataset.fingerprint; }
+          void renderDetail();
+        }
+        if (focus) { $(title).focus({preventScroll:true}); window.scrollTo(0, 0); }
+      }
+      window.addEventListener("hashchange", () => navigate());
+      navigate(false);
+      els.model.addEventListener("change", updateModelSettings);
+      els.steps.addEventListener("input", () => { const n = Number(els.steps.value); els.stepsHint.textContent = `${n} sigma grid points means ${Math.max(0, n - 1)} model evaluations.${n < 20 ? " Low step counts are intended for smoke tests and may produce poor quality." : ""}`; updateGenerateState(); });
+      els.inputMode.addEventListener("change", () => { clearImages(); renderSlots(); setNotice(els.submitNotice, "Hidden mode images were cleared; upload images for the selected mode.", ""); });
+      els.imageSlots.addEventListener("click", event => {
+        const upload = event.target.closest(".upload-image"); if (upload) els.imageSlots.querySelector(`input[data-slot="${upload.dataset.slot}"]`).click();
+        const remove = event.target.closest(".remove-image"); if (remove) { slotVersions[remove.dataset.slot]++; uploaded[remove.dataset.slot] = null; slotState[remove.dataset.slot] = ""; renderSlots(); }
+      });
+      els.imageSlots.addEventListener("change", event => { if (event.target.matches('input[type="file"]') && event.target.files[0]) uploadImage(event.target.dataset.slot, event.target.files[0]); });
+      els.refreshButton.addEventListener("click", () => refreshJobs());
+      els.jobs.addEventListener("change", event => {
+        const checkbox = event.target.closest(".project-select");
+        if (!checkbox || bulkDeleting) return;
+        if (checkbox.checked) selectedJobIds.add(checkbox.dataset.jobId); else selectedJobIds.delete(checkbox.dataset.jobId);
+        updateBulkControls();
+      });
+      $("bulkDeleteButton").addEventListener("click", async () => {
+        if (bulkDeleting || !selectedJobIds.size) return;
+        const ids = [...selectedJobIds];
+        if (!confirm(`Permanently delete ${ids.length} selected ${ids.length === 1 ? "video" : "videos"}? Active jobs cannot be deleted.`)) return;
+        bulkDeleting = true; updateBulkControls();
+        const failures = [];
+        for (const id of ids) {
+          try {
+            const response = await api(`/api/v1/videos/${encodeURIComponent(id)}`, { method: "DELETE" });
+            if (!response.ok) {
+              let message = `Deletion failed (${response.status}).`;
+              try { const body = await response.json(); message = body.error?.message || body.message || message; } catch (_) {}
+              throw new Error(message);
+            }
+            selectedJobIds.delete(id);
+          } catch (error) {
+            failures.push({ id, message: error.message });
+          }
+        }
+        bulkDeleting = false;
+        await refreshJobs();
+        updateBulkControls();
+        if (failures.length) {
+          const deleted = ids.length - failures.length;
+          setNotice($("projectNotice"), `${deleted} of ${ids.length} videos deleted. ${failures.length} failed and remain selected: ${failures.map(item => `${item.id} (${item.message})`).join("; ")}`);
+        } else {
+          setNotice($("projectNotice"), `${ids.length} ${ids.length === 1 ? "video" : "videos"} deleted.`, "");
+        }
+      });
+      $("refreshVideo").addEventListener("click", async () => {
+        detailJob = null;
+        await refreshJobs();
+      });
+      els.form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        updateGenerateState();
+        if (!els.form.reportValidity() || els.generateButton.disabled) return;
+        // getRandomValues also works on private-network HTTP (randomUUID requires HTTPS).
+        const key = [...crypto.getRandomValues(new Uint8Array(16))].map(v => v.toString(16).padStart(2, "0")).join("");
+        submitGeneration({ key, payload: payloadFromForm() });
+      });
+      els.reconcileButton.addEventListener("click", () => {
+        if (pendingSubmission) submitGeneration(pendingSubmission, true);
+      });
+      async function handleJobAction(event) {
+        const notice = $("activityDialog").open ? $("activityNotice") : selectedVideoId() !== null ? $("videoNotice") : $("projectNotice");
+        const open = event.target.closest(".open-project");
+        if (open) {
+          closeActivity(); location.hash = `video/${encodeURIComponent(open.dataset.jobId)}`;
+          return;
+        }
+        const button = event.target.closest(".reuse");
+        if (button) { const job = jobs.find((item) => String(item.id) === button.dataset.jobId) || detailJob; if (job) reuse(job); }
+        const cancel = event.target.closest(".cancel-job");
+        if (cancel && !cancel.disabled) {
+          const id = cancel.dataset.jobId;
+          if (!confirm(`Cancel running job ${id}? Partial output will be discarded.`)) return;
+          cancel.disabled = true;
+          try {
+            const response = await api(`/api/v1/videos/${encodeURIComponent(id)}/cancel`, { method: "POST" });
+            if (!response.ok) {
+              const body = await response.json();
+              throw new Error(body.error?.message || `Cancellation failed (${response.status}).`);
+            }
+            setNotice(notice, "Cancellation requested. The worker will stop at the next safe model boundary.", "");
+          } catch (error) {
+            if (error.status !== 401) setNotice(notice, `${error.message} Refresh to confirm the current job state.`);
+          } finally {
+            await refreshJobs();
+          }
+          return;
+        }
+        const remove = event.target.closest(".delete-job");
+        if (!remove || remove.disabled) return;
+        const id = remove.dataset.jobId;
+        if (!confirm(`Delete job ${id}? Its retained video (if any) and history entry will be permanently removed. Active jobs cannot be deleted.`)) return;
+        remove.disabled = true;
+        try {
+          const response = await api(`/api/v1/videos/${encodeURIComponent(id)}`, { method: "DELETE" });
+          if (!response.ok) {
+            const body = await response.json();
+            throw new Error(body.error?.message || `Deletion failed (${response.status}).`);
+          }
+          if (selectedVideoId() === id) { detailJob = null; history.replaceState(null, "", "#projects"); navigate(); }
+          setNotice($("projectNotice"), "Video deleted.", "");
+        } catch (error) {
+          if (error.status !== 401) setNotice(notice, `${error.message} Refresh to confirm the current job state before trying again.`);
+        } finally {
+          remove.disabled = false;
+          await refreshJobs();
+        }
+      }
+      $("videoDetail").addEventListener("click", handleJobAction);
+      $("activityJobs").addEventListener("click", handleJobAction);
+
+      setInterval(() => document.querySelectorAll(".elapsed").forEach((node) => {
+        const job = jobs.find((item) => String(item.id) === node.dataset.jobId);
+        if (job) node.textContent = elapsed(job);
+      }), 1000);
+
+      els.seed.value = randomSeed();
+      async function connect() {
+        try {
+          const response = await fetch("/session", { method: "POST", credentials: "same-origin" });
+          if (!response.ok) throw new Error("The studio could not connect. Reload to try again.");
+          await Promise.all([loadModels(), refreshJobs()]);
+          authenticated = true;
+          void renderDetail();
+          schedulePoll();
+          if (pendingSubmission) uncertainNotice();
+        } catch (error) { setNotice($("connectionNotice"), error.message); }
+      }
+      connect();
+    })();
+  </script>
+</body>
+</html>

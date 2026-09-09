@@ -1,0 +1,7 @@
+# Copyright 2026 Spunky Tensor
+# SPDX-License-Identifier: Apache-2.0
+
+javascript:
+  # The browser is native JS; its npm dependencies are test tooling, not runtime.
+  # Syft omits these by default. Include them in the source audit explicitly.
+  include-dev-dependencies: true

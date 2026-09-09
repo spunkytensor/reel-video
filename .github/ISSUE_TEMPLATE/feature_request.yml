@@ -1,0 +1,35 @@
+# Copyright 2026 Spunky Tensor
+# SPDX-License-Identifier: Apache-2.0
+name: Feature request
+description: Suggest an improvement or capability.
+title: "feature: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: dropdown
+    id: gpu
+    attributes:
+      label: Would this change model downloads, model terms, or GPU execution?
+      options: ["No", "Yes", "Unsure"]
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Trust-boundary or deployment impact
+      description: Note any effect on trusted-network/shared access, Internet exposure, or user isolation.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

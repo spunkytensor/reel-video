@@ -1,0 +1,8 @@
+# Use the same versions as production, without installing the inference stack.
+-c ../requirements.txt
+fastapi
+uvicorn
+httpx
+pillow
+pytest
+ruff
