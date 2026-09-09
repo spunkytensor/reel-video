@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Copyright 2026 Spunky Tensor
+# SPDX-License-Identifier: Apache-2.0
+
+# Dependencies are restored by the snapshot. Resume only verifies its browser
+# executable remains available for the real frontend checks.
+set -euo pipefail
+
+if ! command -v chromium >/dev/null; then
+  echo "Chromium is unavailable; rerun .agents/setup to restore orb dependencies." >&2
+  exit 1
+fi
+
+echo "Reel Video orb dependencies are ready."
