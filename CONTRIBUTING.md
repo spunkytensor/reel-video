@@ -5,7 +5,7 @@ large behavior or architecture change.
 
 ## Before you start
 
-- Use Python 3.12 and Node.js 22. Docker is needed for runtime-image checks.
+- Use uv with Python 3.12 and Node.js 22. Docker is needed for runtime-image checks.
 - Do not commit secrets, model weights, generated media, local databases, virtual environments,
   dependency directories, or build/test output.
 - Identify third-party code, assets, documentation, models, and fonts in the pull request and add
@@ -17,22 +17,18 @@ large behavior or architecture change.
 
 ## Setup and checks
 
-Install Python 3.12, Node 22, FFmpeg/ffprobe, and Chromium as described in
-[`docs/ci.md`](docs/ci.md). Then run the same CPU checks as CI:
+Install uv, Node 22, FFmpeg/ffprobe, and Chromium as described in
+[`docs/ci.md`](docs/ci.md). Run the CPU checks from the repository root:
 
 ```sh
-python3.12 -m venv .venv-ci
-. .venv-ci/bin/activate
-python -m pip install -r ci/requirements.txt
+uv python install 3.12
 npm ci
 npx playwright-core install --with-deps chromium
-sh ci/python.sh
-npm test
+uv run --no-project --python 3.12 --with-requirements ci/requirements.txt sh ci/python.sh
+uv run --no-project --python 3.12 --with-requirements ci/requirements.txt npm test
 ```
 
-These checks exercise real API, SQLite, Pillow, FFmpeg, and browser behavior with the worker
-disabled. They do not download weights or validate generation. Docker-based Syft/Grype checks and
-the exact local audit commands and limitations are documented in [`docs/ci.md`](docs/ci.md).
+Runtime-image and audit commands are in [`docs/ci.md`](docs/ci.md).
 
 Actual MiniMax H3 generation requires compatible NVIDIA CUDA hardware and substantial resources.
 Only run `verify_image_generation.py` or `verify_api.py` deliberately, record the revision and
@@ -50,14 +46,14 @@ boundary must update tests and security documentation.
 
 Put `Copyright 2026 Spunky Tensor` and `SPDX-License-Identifier: Apache-2.0` in
 format-appropriate comments at the top of all original source, tests and automation.
-Preserve shebangs/doctypes and upstream notices. Run `python ci/check_headers.py`;
+Preserve shebangs/doctypes and upstream notices. Run
+`uv run --no-project --python 3.12 python ci/check_headers.py`;
 JSON uses license metadata and third-party font notices keep their own terms.
 Explain non-obvious invariants and security/memory tradeoffs for human maintainers,
 rather than commenting every statement. Format Python changes with Ruff.
 
 Explain the change and its user impact, list checks actually run, and disclose network access,
-GPU/model execution, new dependencies, and third-party material. Never substitute mocked or
-fabricated generation for a claimed GPU result.
+GPU/model execution, new dependencies, and third-party material.
 
 ## License
 
