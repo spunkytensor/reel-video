@@ -33,6 +33,33 @@ uv installs the CPU test dependencies from `ci/requirements.txt`, constrained by
 `requirements.txt`. Port 18088 must be free. `PYTHON` and `CHROMIUM_PATH` can
 select alternative executables. Local results are written to `outputs/ci/`.
 
+## GitHub Actions caches
+
+pip downloads/wheels are cached using both CPU requirements and production
+constraints; the existing npm download cache remains enabled. Installs and tests
+still run every time, without restoring virtual environments or `node_modules`.
+
+Both workflows use Buildx's GitHub Actions layer cache (`type=gha`, `mode=max`),
+including intermediate FFmpeg/PyAV builds and runtime dependencies. Changed build
+inputs invalidate affected layers. Images are loaded into Docker for the existing
+runtime tests and scans, without a registry push. Separate `runtime-ci-amd64` and
+`runtime-audit-amd64` scopes avoid competing writers across workflows.
+
+Builds always check the base image with `pull: true`. Weekly and manual CVE audits
+also use `no-cache: true` to refresh mutable package installations. Every audit
+creates a new SBOM and runs the vulnerability scan and all security gates.
+
+First runs are cold; `main` populates caches that subsequent PRs can read.
+PR-written caches are restricted to their merge ref. Large CUDA layers incur
+transfer/storage costs and may be evicted; cache misses trigger full builds.
+No test results, credentials, model weights, media or application state are cached.
+
+September 9 baseline: [CI](https://github.com/spunkytensor/reel-video/actions/runs/34316958696)
+took 9m04s, including 7m16s in runtime build/test and 43s installing host dependencies.
+The [runtime audit](https://github.com/spunkytensor/reel-video/actions/runs/34316958695)
+took 9m17s, including 6m14s building the image. Compare cold/warm build and cache
+transfer times before claiming a measured speedup.
+
 ## GPU verification
 
 Actual MiniMax H3 execution requires an NVIDIA CUDA GPU, compatible drivers,
