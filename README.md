@@ -20,9 +20,8 @@ HTTP API in a GPU-enabled Docker container.
 ## Requirements
 
 - Linux with an NVIDIA RTX 5090 (32 GB VRAM). The 100 GiB available-RAM
-  preflight is only a loading threshold: a measured two-reference run reached
-  about 222 GiB host high-water RSS. Size RAM for the intended workload; see
-  [hardware evidence and unverified profiles](VERIFICATION.md).
+  preflight is a loading threshold; image-conditioned workloads can require
+  more than 220 GiB of host RAM.
 - Docker Engine with the
   [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
 - About 150 GB free for model weights, plus space for generated videos.
@@ -49,7 +48,7 @@ the key from `.env` or obtain the same automatic session. Host/Origin checks are
 browser protections, not client authentication; there is no user isolation.
 The key is never generated at startup, stored in the state volume, or printed in logs.
 
-The header follows Reel Maestro: **Videos** shows a simple grid of video
+**Videos** shows a grid of video
 previews and titles. Click a tile to open its detail screen, with information
 and actions on the left and playback on the right. Download, reuse, and delete
 controls live in that detail screen; **New video** opens the creation form and all its
@@ -61,9 +60,6 @@ Select videos using the checkbox at the upper-right of each tile to reveal **Del
 in the header. Bulk deletion always asks for confirmation. Active videos cannot be
 deleted; any failures are reported and remain selected. Leaving the library clears selection.
 
-Studio shares Reel Maestro’s glass surfaces, orange primary action, typography,
-and light/dark appearance. The supplied `logo.png` appears in the bottom-right
-corner, matching Reel Maestro’s Studio branding. Use **Settings → Appearance** to choose System, Light, or Dark.
 ```bash
 # Follow model-download, server, and generation progress.
 docker logs --follow reel-video
@@ -147,51 +143,31 @@ silent delivery, and orientation-aware 1080p export through capability discovery
 1080p delivery uses 1920 × 1080 for landscape, 1080 × 1920 for portrait, and
 1080 × 1080 for square videos. Lanczos scaling preserves the source aspect ratio
 with minimal padding where needed; it does not crop or stretch the video.
-This applies to new exports; existing videos retain their original delivery dimensions.
 
 Model loading and INT8 conversion take several minutes after each container
 start, but downloaded weights remain cached. One GPU worker processes jobs
 sequentially. SQLite preserves queued jobs and history across restarts.
 
-For implementation details and measured hardware results, see
-[IMPLEMENTATION.md](IMPLEMENTATION.md) and [VERIFICATION.md](VERIFICATION.md).
-
-Studio design tokens and bundled Inter/JetBrains Mono fonts are adapted from
-[Reel Maestro](https://github.com/spunkytensor/reel-maestro). Font licenses are included
-in `assets/fonts/`.
-
 ## CI and security
 
-The **CI** badge covers real CPU tests: Python request validation, authentication,
-SQLite persistence, image decoding/uploads, FFmpeg encoding/decoding, and Chromium
-against the actual HTTP server. Browser tests use temporary state and the real queue;
-they do not intercept API responses or manufacture generated videos.
+**CI** checks Python request validation, authentication, SQLite persistence,
+image uploads, FFmpeg encoding/decoding, and the browser UI.
 
-**Actual model execution requires an NVIDIA CUDA GPU. Hosted CI does not load weights,
-run inference, or verify model output, quality, VRAM use, or GPU cancellation.**
-A green CI badge is not a GPU-generation certification.
+Model execution requires an NVIDIA CUDA GPU and is not covered by hosted CI.
 
 **CVE Audit** uses Syft SBOMs and Grype to check both source dependency inventories
 and the built runtime image, including installed OS, Python and CUDA packages.
-Unresolved High and Critical findings fail, including unfixed findings. Three
-Python CPE false positives have exact-package VEX assessments backed by upstream
-source and executable runtime checks; original matches and evidence remain in
-the reports. The image uses pinned Wolfi/Python 3.12 packages and source-built
-FFmpeg/PyAV rather than the vulnerable bundled media libraries. Reports are
-retained even on failure. Badges reflect actual GitHub workflow results, not a
-static “passing” label.
+Unresolved High and Critical findings fail the audit. Reports are retained as
+workflow artifacts.
 
-See [CI coverage, local commands, and security limitations](docs/ci.md).
+See [local checks and audit commands](docs/ci.md).
 
-## License, contributing, and publication status
+## License and contributing
 
 Original application code is Copyright 2026 Spunky Tensor and licensed under
-[Apache-2.0](LICENSE), matching Reel Maestro. Fonts and model components have
+[Apache-2.0](LICENSE). Fonts and model components have
 separate terms; see [third-party notices](THIRD_PARTY_NOTICES.md). The application
 license does not grant MiniMax model, output, trademark, or artwork rights.
 
 See [contribution guidelines](CONTRIBUTING.md), [security policy](SECURITY.md),
-[data handling](docs/privacy.md), and the [publication checklist](docs/publication-readiness.md).
-The GPU profile matrix remains partially verified. Public release is gated on
-owner confirmation of model rights and release-candidate security checks;
-the presence of policy files or badges alone is not publication approval.
+and [data handling](docs/privacy.md).

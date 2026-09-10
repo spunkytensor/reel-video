@@ -46,6 +46,9 @@ def ffprobe(path, *entries):
 
 
 def make_source(path, size="960x544"):
+    # Bound both inputs, rather than stopping output with -frames:v/-shortest:
+    # older FFmpeg can stop audio early while delayed H.264 frames are flushed.
+    duration = 124 / 24
     subprocess.run(
         [
             "ffmpeg",
@@ -55,13 +58,11 @@ def make_source(path, size="960x544"):
             "-f",
             "lavfi",
             "-i",
-            f"testsrc2=size={size}:rate=24",
+            f"testsrc2=size={size}:rate=24:duration={duration:.9f}",
             "-f",
             "lavfi",
             "-i",
-            "sine=frequency=997:sample_rate=32000",
-            "-frames:v",
-            "124",
+            f"sine=frequency=997:sample_rate=32000:duration={duration:.9f}",
             "-ac",
             "2",
             "-c:v",
@@ -70,7 +71,6 @@ def make_source(path, size="960x544"):
             "yuv420p",
             "-c:a",
             "aac",
-            "-shortest",
             str(path),
         ],
         check=True,
@@ -115,6 +115,12 @@ def test_cpu_ffmpeg_finalize_contract(
     folder.mkdir()
     source = folder / "source.mp4"
     make_source(source, size)
+    source_streams = worker.probe(source)["streams"]
+    source_video = next(s for s in source_streams if s["codec_type"] == "video")
+    source_audio = next(s for s in source_streams if s["codec_type"] == "audio")
+    assert int(source_video["nb_read_frames"]) == 124
+    assert float(source_video["duration"]) == pytest.approx(124 / 24, abs=0.001)
+    assert float(source_audio["duration"]) == pytest.approx(124 / 24, abs=0.001)
     before_audio = audio_packet_hashes(source)
     metadata = worker.finalize(
         source,
