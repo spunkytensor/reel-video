@@ -2,7 +2,7 @@ torch==2.14.0
 torchvision==0.29.0
 torchao==0.18.0
 diffusers==0.40.0
-transformers==5.16.1
+transformers==5.17.0
 accelerate
 av
 scipy
