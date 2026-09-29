@@ -38,13 +38,14 @@ else:
     assert sbom["distro"]["id"] == "wolfi", "Missing Wolfi OS inventory"
     expected.update(
         {
-            (normalized("python-3.12-base"), "3.12.14-r6"),
+            (normalized("python-3.12-base"), "3.12.14-r9"),
             ("libexpat1", "2.8.4-r0"),
-            ("ffmpeg", "9.0.1"),
+            ("zlib", "1.3.2.1_rc20260601-r0"),
+            ("ffmpeg", "9.0.2"),
         }
     )
     ffmpeg_versions = {p["version"] for p in packages if p["name"] == "ffmpeg"}
-    assert ffmpeg_versions == {"9.0.1"}, f"Unexpected FFmpeg copies: {ffmpeg_versions}"
+    assert ffmpeg_versions == {"9.0.2"}, f"Unexpected FFmpeg copies: {ffmpeg_versions}"
 
 missing = expected - installed
 if missing:

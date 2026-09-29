@@ -1,16 +1,16 @@
 # Copyright 2026 Spunky Tensor
 # SPDX-License-Identifier: Apache-2.0
 
-ARG BASE_IMAGE=cgr.dev/chainguard/wolfi-base@sha256:918a593b8268c222afd4e2c4f06860ac984e60719b4697e4c71d796bc8fcd042
+ARG BASE_IMAGE=cgr.dev/chainguard/wolfi-base@sha256:42c1bedc56d25685b394a7a860817feb3641bae4121681697a6237290472ba11
 FROM ${BASE_IMAGE} AS media-build
 
 # Wolfi uses glibc, not musl, and backports fixes into its Python 3.12 packages.
-ARG PYTHON_VERSION=3.12.14-r6
+ARG PYTHON_VERSION=3.12.14-r9
 ARG X264_VERSION=2025.06.08-r7
 RUN apk add --no-cache \
        python-3.12-dev=${PYTHON_VERSION} python-3.12=${PYTHON_VERSION} \
-       libexpat1=2.8.4-r0 \
-       py3.12-pip=26.2.1-r1 gcc-14-default=14.4.0-r1 glibc-dev=2.44-r5 \
+       libexpat1=2.8.4-r0 zlib=1.3.2.1_rc20260601-r0 \
+       py3.12-pip=26.2.1-r1 gcc-14-default=14.4.0-r1 glibc-dev=2.44-r6 \
        pkgconf=3.0.7-r0 nasm=3.02-r1 curl=8.22.0-r2 \
        ca-certificates=20260611-r1 xz=5.8.3-r3 make=4.4.1-r13 \
        x264-dev=${X264_VERSION} \
@@ -21,7 +21,7 @@ COPY docker/build-media.sh /build-media.sh
 RUN sh /build-media.sh
 
 FROM ${BASE_IMAGE} AS runtime
-ARG PYTHON_VERSION=3.12.14-r6
+ARG PYTHON_VERSION=3.12.14-r9
 ARG X264_VERSION=2025.06.08-r7
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -34,17 +34,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # GCC 14 is within CUDA 13's supported host-compiler range (unversioned is not).
 RUN apk add --no-cache \
        python-3.12=${PYTHON_VERSION} python-3.12-dev=${PYTHON_VERSION} \
-       libexpat1=2.8.4-r0 \
+       libexpat1=2.8.4-r0 zlib=1.3.2.1_rc20260601-r0 \
        py3.12-pip=26.2.1-r1 x264-libs=${X264_VERSION} \
-       ca-certificates=20260611-r1 gcc-14-default=14.4.0-r1 glibc-dev=2.44-r5 \
+       ca-certificates=20260611-r1 gcc-14-default=14.4.0-r1 glibc-dev=2.44-r6 \
     && mkdir -p /etc/ld.so.conf.d \
     && echo /usr/local/lib > /etc/ld.so.conf.d/reel-video.conf
 
 COPY --from=media-build /usr/local/ /usr/local/
 COPY --from=media-build /sources/ /usr/share/reel-video/sources/
 COPY --from=media-build /wheels/ /wheels/
-COPY docker/build-media.sh Dockerfile /usr/share/reel-video/build/
-RUN ldconfig && python3.12 -m venv /opt/venv \
+COPY docker/CVE-2026-82049.patch /usr/share/reel-video/sources/
+COPY docker/apply-security-patches.py docker/build-media.sh Dockerfile /usr/share/reel-video/build/
+RUN python3.12 /usr/share/reel-video/build/apply-security-patches.py \
+    && ldconfig && python3.12 -m venv /opt/venv \
     && python -m pip install --no-cache-dir pip==26.2.1 \
     && python -m pip install --no-cache-dir --no-deps /wheels/av-*.whl \
     && rm -rf /wheels

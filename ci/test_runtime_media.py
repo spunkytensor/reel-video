@@ -3,8 +3,11 @@
 
 """Run inside the actual image, offline and without GPU access or model weights."""
 
+import io
+import os
 import subprocess
 import sys
+import tarfile
 from http.cookies import CookieError, Morsel, SimpleCookie
 from pathlib import Path
 from xml.parsers import expat
@@ -73,19 +76,53 @@ def test_python_expat_uses_full_width_hash_salt():
     assert "libexpat.so.1" in dependencies
     # The VEX assessment applies to this APK revision only, not generic Python.
     subprocess.run(
-        ["apk", "--no-network", "info", "--installed", "python-3.12=3.12.14-r6"],
+        ["apk", "--no-network", "info", "--installed", "python-3.12=3.12.14-r9"],
         check=True,
     )
 
 
+def test_python_tarfile_hardlink_to_symlink_is_not_relocated(tmp_path):
+    # CVE-2026-82049: a relocated hard link must resolve to the in-tree file,
+    # not duplicate the symlink where its relative target can escape.
+    archive = tmp_path / "crafted.tar"
+    with tarfile.open(archive, "w") as output:
+        regular = tarfile.TarInfo("a/escape")
+        regular.size = len(b"decoy")
+        output.addfile(regular, io.BytesIO(b"decoy"))
+        symlink = tarfile.TarInfo("a/b/s")
+        symlink.type = tarfile.SYMTYPE
+        symlink.linkname = os.path.join("..", "escape")
+        output.addfile(symlink)
+        hardlink = tarfile.TarInfo("s")
+        hardlink.type = tarfile.LNKTYPE
+        hardlink.linkname = "a/b/s"
+        output.addfile(hardlink)
+    destination = tmp_path / "output"
+    with tarfile.open(archive) as source:
+        source.extractall(destination, filter="data")
+    assert not (destination / "s").is_symlink()
+    assert (destination / "s").read_bytes() == b"decoy"
+
+
 def test_source_built_pyav_uses_patched_ffmpeg():
     assert av.__version__ == "18.1.0"
-    assert av.library_versions["libavcodec"] == (63, 1, 101)
+    assert av.library_versions["libavcodec"] == (63, 1, 102)
     assert not (Path(av.__file__).parent.parent / "av.libs").exists()
     version = subprocess.check_output(["ffmpeg", "-version"], text=True)
-    assert version.startswith("ffmpeg version 9.0.1 ")
+    assert version.startswith("ffmpeg version 9.0.2 ")
     assert "--disable-network" in version
     assert "--enable-version3" in version
+
+
+def test_disabled_ffmpeg_components_are_absent():
+    # CVE-2026-75142 and CVE-2026-75146 affect mpegenc and dashdec. The
+    # allowlisted build must not compile or expose either component.
+    muxers = subprocess.check_output(["ffmpeg", "-hide_banner", "-muxers"], text=True)
+    demuxers = subprocess.check_output(
+        ["ffmpeg", "-hide_banner", "-demuxers"], text=True
+    )
+    assert " mpeg " not in muxers
+    assert " dash " not in demuxers
 
 
 def test_pipeline_imports_without_loading_weights():
