@@ -45,7 +45,7 @@ inputs invalidate affected layers. Images are loaded into Docker for the existin
 runtime tests and scans, without a registry push. Separate `runtime-ci-amd64` and
 `runtime-audit-amd64` scopes avoid competing writers across workflows.
 
-Builds always check the base image with `pull: true`. Weekly and manual CVE audits
+Builds always check the base image with `pull: true`. Nightly and manual CVE audits
 also use `no-cache: true` to refresh mutable package installations. Every audit
 creates a new SBOM and runs the vulnerability scan and all security gates.
 
@@ -71,11 +71,25 @@ Record the revision, GPU, driver/CUDA versions, workload, and results.
 
 ## CVE audit
 
-`CVE Audit` runs on pull requests, `main` pushes, manual dispatch, and weekly.
+`CVE Audit` runs on pull requests, `main` pushes, manual dispatch, and nightly
+at 09:19 UTC.
 It scans source dependencies and the runtime image using Syft 1.51.1 and Grype
 0.118.0. The runtime audit applies `ci/runtime.openvex.json` and checks the CVE
 baseline. Unresolved High/Critical findings and incomplete inventories fail.
-SBOMs, reports, and runtime test results are retained for 14 days.
+Syft inventories and their SPDX/CycloneDX conversions with checksums, reports,
+and runtime test results are retained for 14 days.
+
+`Spunky Tensor security` in `.github/workflows/public-repo-security.yml` runs on
+the same events and nightly schedule. It calls the shared Trivy workflow pinned
+to `69b5f260fb4358acb0e2f7b2a96254ad9cc2322c`, retaining source SPDX and CycloneDX
+SBOMs, all-severity vulnerability JSON, tool/database metadata, source identity,
+and checksums for 30 days. Empty inventories, scanner errors, and High/Critical
+findings (including unfixed findings) fail. It does not apply the runtime VEX.
+Dependency review checks pull requests; CodeQL analyzes Python, JavaScript and
+Actions. These supplement, not replace, the native runtime audit.
+
+See [baseline coverage and remaining decisions](security-baseline.md). Workflow
+artifacts are temporary evidence, not durable release SBOM downloads.
 
 With Syft and Grype installed, run the runtime audit from the repository root:
 
