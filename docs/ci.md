@@ -81,12 +81,12 @@ and runtime test results are retained for 14 days.
 
 `Spunky Tensor security` in `.github/workflows/public-repo-security.yml` runs on
 the same events and nightly schedule. It calls the shared Trivy workflow pinned
-to `69b5f260fb4358acb0e2f7b2a96254ad9cc2322c`, retaining source SPDX and CycloneDX
+to `ed53814ed23f76c11fa4a91f57f99de903c18bfc`, retaining source SPDX and CycloneDX
 SBOMs, all-severity vulnerability JSON, tool/database metadata, source identity,
 and checksums for 30 days. Empty inventories, scanner errors, and High/Critical
 findings (including unfixed findings) fail. It does not apply the runtime VEX.
-Dependency review checks pull requests; CodeQL analyzes Python, JavaScript and
-Actions. These supplement, not replace, the native runtime audit.
+Full-inventory Trivy replaces dependency review. Public-only CodeQL analyzes Python,
+JavaScript and Actions as supplemental coverage; it is not required for private repositories.
 
 See [baseline coverage and remaining decisions](security-baseline.md). Workflow
 artifacts are temporary evidence, not durable release SBOM downloads.

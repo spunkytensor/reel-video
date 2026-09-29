@@ -16,16 +16,11 @@ permissions:
 
 jobs:
   source:
-    uses: spunkytensor/.github/.github/workflows/trivy.yml@69b5f260fb4358acb0e2f7b2a96254ad9cc2322c
-  dependency-review:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
-        with:
-          fail-on-severity: high
+    uses: spunkytensor/.github/.github/workflows/trivy.yml@ed53814ed23f76c11fa4a91f57f99de903c18bfc
+    with:
+      baseline-sha: ed53814ed23f76c11fa4a91f57f99de903c18bfc
   codeql:
+    if: github.event.repository.private == false
     name: CodeQL (${{ matrix.language }})
     runs-on: ubuntu-24.04
     timeout-minutes: 30

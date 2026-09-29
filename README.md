@@ -162,8 +162,8 @@ workflow artifacts.
 
 See [local checks and audit commands](docs/ci.md).
 
-**Spunky Tensor security** adds the pinned shared Trivy source scan, SPDX and
-CycloneDX SBOM evidence, dependency review, and CodeQL. Both security workflows
+**Spunky Tensor security** adds the pinned shared Trivy source scan and SPDX and
+CycloneDX SBOM evidence. Public-only CodeQL is supplemental. Both security workflows
 run nightly at 09:19 UTC. See [baseline coverage and gaps](docs/security-baseline.md),
 [supported versions](SECURITY.md#supported-versions), and
 [SBOM downloads in workflow runs](https://github.com/spunkytensor/reel-video/actions/workflows/public-repo-security.yml)

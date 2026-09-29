@@ -4,7 +4,7 @@ Maintainer: Spunky Tensor (`spunkytensor`). Supported versions remain the latest
 release and `main`, as defined in [SECURITY.md](../SECURITY.md). The project and
 contribution license remains Apache-2.0, with no separate CLA or DCO requirement.
 
-The adopted [shared baseline](https://github.com/spunkytensor/.github/blob/69b5f260fb4358acb0e2f7b2a96254ad9cc2322c/docs/baseline.md)
+The adopted [shared baseline](https://github.com/spunkytensor/.github/blob/ed53814ed23f76c11fa4a91f57f99de903c18bfc/docs/baseline.md)
 is pinned at that revision. Adoption is partial; automation is not legal clearance.
 
 ## Automated coverage
@@ -20,9 +20,10 @@ is pinned at that revision. Adoption is partial; automation is not legal clearan
   inventory completeness and the severity-independent CVE baseline. Native CPU
   regressions run before runtime OpenVEX applicability statements are applied.
   No scanner or existing VEX statement has been removed or translated.
-- CodeQL analyzes Python, JavaScript and Actions. Dependency review gates PRs on
-  High/Critical dependency findings. Existing Dependabot configuration covers pip,
-  npm, Docker and Actions. Action references use full commit pins.
+- Public-repository CodeQL supplements the baseline for Python, JavaScript and
+  Actions; it is skipped for private repositories and is not baseline-required.
+  Full-inventory Trivy replaces dependency review. Existing Dependabot configuration
+  covers pip, npm, Docker and Actions. Action references use full commit pins.
 - [Shared source evidence](https://github.com/spunkytensor/reel-video/actions/workflows/public-repo-security.yml)
   includes SPDX/CycloneDX SBOMs, all-severity vulnerability reports, tool/database
   metadata, source identity and checksums (30 days).
@@ -56,7 +57,7 @@ the project's Apache license. Review other assets' provenance before release.
   This change does not alter GitHub settings.
 - Configure branch protection, required checks and workflow/policy code ownership
   after observing real check names. Confirm reviewers, 2FA and periodic access
-  review. CodeQL upload availability and duplicate default setup need admin review.
+  review. Public CodeQL duplicate default setup may need admin review.
 - Assign vulnerability findings an owner and remediation date. Existing OpenVEX
   has scoped package/version and regression evidence but needs named reviewer,
   expiry/review date and tracking references; do not invent legal approval or
