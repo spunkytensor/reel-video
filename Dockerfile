@@ -43,7 +43,7 @@ RUN apk add --no-cache \
 COPY --from=media-build /usr/local/ /usr/local/
 COPY --from=media-build /sources/ /usr/share/reel-video/sources/
 COPY --from=media-build /wheels/ /wheels/
-COPY docker/CVE-2026-82049.patch /usr/share/reel-video/sources/
+COPY docker/CVE-2026-82049.patch docker/CPython-LICENSE.txt /usr/share/reel-video/sources/
 COPY docker/apply-security-patches.py docker/build-media.sh Dockerfile /usr/share/reel-video/build/
 RUN python3.12 /usr/share/reel-video/build/apply-security-patches.py \
     && ldconfig && python3.12 -m venv /opt/venv \

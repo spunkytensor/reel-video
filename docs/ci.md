@@ -79,6 +79,16 @@ baseline. Unresolved High/Critical findings and incomplete inventories fail.
 Syft inventories and their SPDX/CycloneDX conversions with checksums, reports,
 and runtime test results are retained for 14 days.
 
+The runtime uses Wolfi Python `3.12.14-r9`, zlib `1.3.2.1_rc20260601-r0`, and
+source-built FFmpeg `9.0.2`. The build applies the upstream CPython
+`CVE-2026-82049` tarfile backport and removes stale precompiled bytecode.
+The patch, its license, and the patch-application script ship with the image.
+Native runtime tests exercise the crafted archive and verify the FFmpeg MPEG
+muxer and DASH demuxer are absent before applying the three exact-package VEX
+assessments. Those assessments apply only to this tested image build, not to
+unmodified packages or other FFmpeg builds with the same version. The original
+CVE baseline and High/Critical failure threshold remain enforced.
+
 `Spunky Tensor security` in `.github/workflows/public-repo-security.yml` runs on
 the same events and nightly schedule. It calls the shared Trivy workflow pinned
 to `ed53814ed23f76c11fa4a91f57f99de903c18bfc`, retaining source SPDX and CycloneDX
