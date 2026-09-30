@@ -26,7 +26,7 @@ The application bundles fonts from
 
 ## Native media components in the container
 
-The runtime builds [FFmpeg 9.0.1](https://ffmpeg.org/) with GPL and version-3
+The runtime builds [FFmpeg 9.0.2](https://ffmpeg.org/) with GPL and version-3
 support and links Wolfi's [x264](https://www.videolan.org/developers/x264.html)
 (`2025.06.08-r7`, GPL-2.0-or-later). This FFmpeg build is GPL-3.0-or-later,
 not Apache-2.0. [PyAV 18.1.0](https://github.com/PyAV-Org/PyAV) is BSD-3-Clause
@@ -40,6 +40,15 @@ texts; FFmpeg's GPLv3 text is also copied alongside them. This project's media
 build script and Dockerfile are under `/usr/share/reel-video/build/`. Source
 archive checksums are checked during the build. The application license does not
 override these licenses or those of the base OS/CUDA packages.
+
+## CPython security backport
+
+The runtime applies the upstream CPython tarfile hard-link fix from
+[commit b8f23e3](https://github.com/python/cpython/commit/b8f23e307097552eaea2604383a12ab280520d0d)
+to Wolfi's Python 3.12 standard library. The patch and upstream license text are
+included as `docker/CVE-2026-82049.patch` and `docker/CPython-LICENSE.txt`, and
+copied to `/usr/share/reel-video/sources/` in the image. CPython's PSF License
+Agreement and historical license notices continue to apply to this material.
 
 ## Dependencies and distribution boundary
 

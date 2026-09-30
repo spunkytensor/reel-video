@@ -8,7 +8,7 @@ on:
     branches: [main]
   pull_request:
   schedule:
-    - cron: "17 8 * * 1"
+    - cron: "19 9 * * *"
   workflow_dispatch:
 
 permissions:
@@ -24,7 +24,9 @@ jobs:
       matrix:
         target: [source, runtime-image]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up cached runtime builder
         if: matrix.target == 'runtime-image'
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
@@ -36,7 +38,7 @@ jobs:
           load: true
           tags: reel-video:audit
           pull: true
-          # Weekly and manual audits refresh mutable package repositories too.
+          # Nightly and manual audits refresh mutable package repositories too.
           no-cache: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
           cache-from: type=gha,scope=runtime-audit-amd64
           cache-to: type=gha,scope=runtime-audit-amd64,mode=max
@@ -69,6 +71,17 @@ jobs:
         env:
           TARGET: ${{ matrix.target }}
         run: python3 ci/check_sbom.py sbom.syft.json "$TARGET"
+      - name: Locate pinned Syft for evidence conversion
+        id: syft
+        uses: anchore/sbom-action/download-syft@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        with:
+          syft-version: v1.51.1
+      - name: Export interoperable inventories of the same scanned subject
+        env:
+          SYFT: ${{ steps.syft.outputs.cmd }}
+        run: |
+          "$SYFT" convert sbom.syft.json -o spdx-json=sbom.spdx.json -o cyclonedx-json=sbom.cdx.json
+          sha256sum sbom.*.json > SBOM-SHA256SUMS
       - name: Fail on High or Critical CVEs, including unfixed findings
         uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
         env:
@@ -86,11 +99,14 @@ jobs:
         run: python3 ci/check_cve_baseline.py grype.json
       - name: Retain inventory and audit results even on failure
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: cve-${{ matrix.target }}
           path: |
             sbom.syft.json
+            sbom.spdx.json
+            sbom.cdx.json
+            SBOM-SHA256SUMS
             grype.json
             ci/runtime.openvex.json
             outputs/ci/runtime.xml

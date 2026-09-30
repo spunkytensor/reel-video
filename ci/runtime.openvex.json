@@ -2,36 +2,36 @@
   "@context": "https://openvex.dev/ns/v0.2.0",
   "@id": "https://github.com/spunkytensor/reel-video/blob/main/ci/runtime.openvex.json",
   "author": "Reel Video maintainers (Copyright 2026 Spunky Tensor)",
-  "timestamp": "2026-09-09T00:00:00Z",
-  "version": 1,
+  "timestamp": "2026-09-29T00:00:00Z",
+  "version": 2,
   "license": "Apache-2.0",
   "statements": [
     {
-      "vulnerability": { "name": "CVE-2026-3644" },
+      "vulnerability": { "name": "CVE-2026-82049" },
       "products": [
-        { "@id": "pkg:apk/wolfi/python-3.12@3.12.14-r6?arch=x86_64&distro=wolfi-20230201" }
+        { "@id": "pkg:apk/wolfi/python-3.12@3.12.14-r9?arch=x86_64&distro=wolfi-20230201" }
       ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_present",
-      "impact_statement": "This exact Wolfi package contains CPython 3.12.14's cookie validation fix. NVD's generic <3.13.13 CPE range misses the 3.12 backport. ci/test_runtime_media.py exercises update, |= and output validation in the built runtime before this VEX is used. Source: https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/Lib/http/cookies.py . See docs/ci.md for build provenance."
+      "impact_statement": "The image applies CPython's 3.13-and-below security backport to this exact Wolfi package. ci/test_runtime_media.py constructs the hard-link-to-symlink archive and verifies extraction produces a regular in-tree file before this VEX is used. Source: https://github.com/python/cpython/commit/b8f23e307097552eaea2604383a12ab280520d0d . See docs/ci.md for build provenance."
     },
     {
-      "vulnerability": { "name": "CVE-2026-4224" },
+      "vulnerability": { "name": "CVE-2026-75142" },
       "products": [
-        { "@id": "pkg:apk/wolfi/python-3.12@3.12.14-r6?arch=x86_64&distro=wolfi-20230201" }
+        { "@id": "pkg:generic/ffmpeg@9.0.2" }
       ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_present",
-      "impact_statement": "This exact Wolfi package contains CPython 3.12.14's native content-model recursion guard. NVD's generic <3.13.13 CPE range misses the 3.12 backport. ci/test_runtime_media.py verifies deep DTD parsing raises RecursionError rather than crashing before this VEX is used. Source: https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/Modules/pyexpat.c . See docs/ci.md for build provenance."
+      "impact_statement": "FFmpeg 9.0.2 contains the upstream fix, and this exact allowlisted build does not compile or expose the affected MPEG program-stream muxer. ci/test_runtime_media.py checks the built binary's muxer inventory before this VEX is used. Source: https://github.com/FFmpeg/FFmpeg/commit/9d786e4b5e9b8482651928574de33772aeee7be1 ."
     },
     {
-      "vulnerability": { "name": "CVE-2026-7210" },
+      "vulnerability": { "name": "CVE-2026-75146" },
       "products": [
-        { "@id": "pkg:apk/wolfi/python-3.12@3.12.14-r6?arch=x86_64&distro=wolfi-20230201" }
+        { "@id": "pkg:generic/ffmpeg@9.0.2" }
       ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_present",
-      "impact_statement": "This exact Wolfi package builds CPython 3.12.14 against system Expat >=2.8.0, including both the 16-byte hash salt patch and the new Expat API. NVD's generic <3.13.14 CPE range misses the 3.12 backport. ci/test_runtime_media.py verifies the installed APK revision, Expat version, shared dependency and XML_SetHashSalt16Bytes binary reference before this VEX is used. Source: https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/Modules/pyexpat.c . See docs/ci.md for build provenance."
+      "impact_statement": "FFmpeg 9.0.2 contains the upstream fix, and this exact allowlisted build does not compile or expose the affected DASH demuxer. ci/test_runtime_media.py checks the built binary's demuxer inventory before this VEX is used. Source: https://github.com/FFmpeg/FFmpeg/commit/65b0dab903e5975e036b30ecc58f5935d4f151e0 ."
     }
   ]
 }
