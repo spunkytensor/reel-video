@@ -47,7 +47,7 @@ jobs:
         run: sh ci/runtime.sh reel-video:audit
       - name: Catalog declared Python and frontend test dependencies
         if: matrix.target == 'source'
-        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           path: .
           format: syft-json
@@ -58,7 +58,7 @@ jobs:
           upload-release-assets: false
       - name: Catalog installed OS, Python and CUDA packages
         if: matrix.target == 'runtime-image'
-        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           image: reel-video:audit
           format: syft-json
