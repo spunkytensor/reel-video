@@ -38,7 +38,7 @@ else:
     assert sbom["distro"]["id"] == "wolfi", "Missing Wolfi OS inventory"
     expected.update(
         {
-            (normalized("python-3.12-base"), "3.12.14-r9"),
+            (normalized("python-3.12-base"), "3.12.15-r0"),
             ("libexpat1", "2.8.4-r0"),
             ("zlib", "1.3.2.1_rc20260601-r0"),
             ("ffmpeg", "9.0.2"),

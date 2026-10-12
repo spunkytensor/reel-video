@@ -2,19 +2,10 @@
   "@context": "https://openvex.dev/ns/v0.2.0",
   "@id": "https://github.com/spunkytensor/reel-video/blob/main/ci/runtime.openvex.json",
   "author": "Reel Video maintainers (Copyright 2026 Spunky Tensor)",
-  "timestamp": "2026-09-29T00:00:00Z",
-  "version": 2,
+  "timestamp": "2026-10-12T00:00:00Z",
+  "version": 3,
   "license": "Apache-2.0",
   "statements": [
-    {
-      "vulnerability": { "name": "CVE-2026-82049" },
-      "products": [
-        { "@id": "pkg:apk/wolfi/python-3.12@3.12.14-r9?arch=x86_64&distro=wolfi-20230201" }
-      ],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_present",
-      "impact_statement": "The image applies CPython's 3.13-and-below security backport to this exact Wolfi package. ci/test_runtime_media.py constructs the hard-link-to-symlink archive and verifies extraction produces a regular in-tree file before this VEX is used. Source: https://github.com/python/cpython/commit/b8f23e307097552eaea2604383a12ab280520d0d . See docs/ci.md for build provenance."
-    },
     {
       "vulnerability": { "name": "CVE-2026-75142" },
       "products": [
