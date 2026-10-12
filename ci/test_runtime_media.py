@@ -66,7 +66,7 @@ def test_python_expat_uses_full_width_hash_salt():
     # This checks the actual binary's API reference, not only a version label.
     import pyexpat
 
-    assert sys.version_info[:3] == (3, 12, 14)
+    assert sys.version_info[:3] == (3, 12, 15)
     assert expat.version_info >= (2, 8, 0)
     symbols = subprocess.check_output(["readelf", "-Ws", pyexpat.__file__], text=True)
     assert "XML_SetHashSalt16Bytes" in symbols
@@ -74,9 +74,9 @@ def test_python_expat_uses_full_width_hash_salt():
         ["readelf", "-d", pyexpat.__file__], text=True
     )
     assert "libexpat.so.1" in dependencies
-    # The VEX assessment applies to this APK revision only, not generic Python.
+    # These stdlib regressions were validated against this exact APK revision.
     subprocess.run(
-        ["apk", "--no-network", "info", "--installed", "python-3.12=3.12.14-r9"],
+        ["apk", "--no-network", "info", "--installed", "python-3.12=3.12.15-r0"],
         check=True,
     )
 

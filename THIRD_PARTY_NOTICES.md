@@ -41,15 +41,6 @@ build script and Dockerfile are under `/usr/share/reel-video/build/`. Source
 archive checksums are checked during the build. The application license does not
 override these licenses or those of the base OS/CUDA packages.
 
-## CPython security backport
-
-The runtime applies the upstream CPython tarfile hard-link fix from
-[commit b8f23e3](https://github.com/python/cpython/commit/b8f23e307097552eaea2604383a12ab280520d0d)
-to Wolfi's Python 3.12 standard library. The patch and upstream license text are
-included as `docker/CVE-2026-82049.patch` and `docker/CPython-LICENSE.txt`, and
-copied to `/usr/share/reel-video/sources/` in the image. CPython's PSF License
-Agreement and historical license notices continue to apply to this material.
-
 ## Dependencies and distribution boundary
 
 Python components are enumerated in `requirements.txt`, browser-test tooling in
