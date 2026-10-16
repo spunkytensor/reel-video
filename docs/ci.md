@@ -82,8 +82,12 @@ and runtime test results are retained for 14 days.
 The runtime uses Wolfi Python `3.12.15-r0`, OpenSSL `3.6.5-r2`, zlib
 `1.3.2.1_rc20260601-r0`, and source-built FFmpeg `9.0.2`. Native runtime tests
 exercise a crafted `CVE-2026-82049` tarfile archive against the stdlib fix and
-verify the FFmpeg MPEG muxer and DASH demuxer are absent before applying the two
-exact-package VEX assessments. Those assessments apply only to this tested image
+verify the FFmpeg MPEG muxer and DASH, RTSP, SDP and SAT>IP demuxers are absent
+before applying the three exact-package VEX assessments. The RTSP input check
+also rejects a URL as an unknown format, covering `CVE-2026-107696` without
+connecting to a server. Upstream FFmpeg 9.0.2 is affected by that redirect loop;
+the vulnerable code is excluded from this local-media build, not patched.
+Those assessments apply only to this tested image
 build, not to unmodified packages or other FFmpeg builds with the same version.
 The original CVE baseline and High/Critical failure threshold remain enforced.
 

@@ -116,13 +116,27 @@ def test_source_built_pyav_uses_patched_ffmpeg():
 
 def test_disabled_ffmpeg_components_are_absent():
     # CVE-2026-75142 and CVE-2026-75146 affect mpegenc and dashdec. The
-    # allowlisted build must not compile or expose either component.
+    # RTSP redirect loop CVE-2026-107696 affects ff_rtsp_connect. None of
+    # these network/input components may be exposed by our local-media build.
     muxers = subprocess.check_output(["ffmpeg", "-hide_banner", "-muxers"], text=True)
     demuxers = subprocess.check_output(
         ["ffmpeg", "-hide_banner", "-demuxers"], text=True
     )
     assert " mpeg " not in muxers
     assert " dash " not in demuxers
+    for name in ("rtsp", "sdp", "satip"):
+        assert f" {name} " not in demuxers
+        assert name not in av.formats_available
+    # Also exercise the input boundary: rejection must precede any connection.
+    result = subprocess.run(
+        ["ffmpeg", "-hide_banner", "-f", "rtsp", "-i", "rtsp://127.0.0.1/test"],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
+    assert result.returncode != 0
+    assert "Unknown input format: 'rtsp'" in result.stderr
 
 
 def test_pipeline_imports_without_loading_weights():
