@@ -2,8 +2,8 @@
   "@context": "https://openvex.dev/ns/v0.2.0",
   "@id": "https://github.com/spunkytensor/reel-video/blob/main/ci/runtime.openvex.json",
   "author": "Reel Video maintainers (Copyright 2026 Spunky Tensor)",
-  "timestamp": "2026-10-12T00:00:00Z",
-  "version": 3,
+  "timestamp": "2026-10-16T00:00:00Z",
+  "version": 4,
   "license": "Apache-2.0",
   "statements": [
     {
@@ -23,6 +23,15 @@
       "status": "not_affected",
       "justification": "vulnerable_code_not_present",
       "impact_statement": "FFmpeg 9.0.2 contains the upstream fix, and this exact allowlisted build does not compile or expose the affected DASH demuxer. ci/test_runtime_media.py checks the built binary's demuxer inventory before this VEX is used. Source: https://github.com/FFmpeg/FFmpeg/commit/65b0dab903e5975e036b30ecc58f5935d4f151e0 ."
+    },
+    {
+      "vulnerability": { "name": "CVE-2026-107696" },
+      "products": [
+        { "@id": "pkg:generic/ffmpeg@9.0.2" }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Upstream FFmpeg 9.0.2 is affected, but this exact docker/build-media.sh build disables networking and all demuxers except mov. It does not compile the RTSP, SDP or SAT>IP demuxers that reach ff_rtsp_connect in libavformat/rtsp.c. ci/test_runtime_media.py verifies their absence through FFmpeg and PyAV and requires RTSP input to fail as an unknown format before this assessment is applied. This does not cover other FFmpeg 9.0.2 builds. Upstream fix: https://github.com/FFmpeg/FFmpeg/commit/f5d4fd186c68913240c4f6e9cda98443e1518b34 ."
     }
   ]
 }
