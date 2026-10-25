@@ -9,9 +9,12 @@ FROM ${BASE_IMAGE} AS media-build
 # 4.0.2, hashlib lacks sha224, so ensurepip and venv creation fail.
 ARG PYTHON_VERSION=3.12.15-r0
 ARG X264_VERSION=2025.06.08-r7
+# Explicitly replace the base image's Brotli libraries for CVE-2026-111497;
+# apk add otherwise retains already-installed transitive dependencies.
 RUN apk add --no-cache \
        python-3.12-dev=${PYTHON_VERSION} python-3.12=${PYTHON_VERSION} \
        libexpat1=2.8.4-r0 zlib=1.3.2.1_rc20260601-r0 \
+       libbrotlicommon1=1.2.1-r1 libbrotlidec1=1.2.1-r1 libbrotlienc1=1.2.1-r1 \
        py3.12-pip=26.2.1-r4 gcc-14-default=14.4.0-r1 glibc-dev=2.44-r6 \
        pkgconf=3.0.7-r0 nasm=3.02-r1 curl=8.22.0-r2 \
        ca-certificates=20260611-r1 xz=5.8.3-r3 make=4.4.1-r13 \
@@ -39,6 +42,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apk add --no-cache \
        python-3.12=${PYTHON_VERSION} python-3.12-dev=${PYTHON_VERSION} \
        libexpat1=2.8.4-r0 zlib=1.3.2.1_rc20260601-r0 \
+       libbrotlicommon1=1.2.1-r1 libbrotlidec1=1.2.1-r1 libbrotlienc1=1.2.1-r1 \
        py3.12-pip=26.2.1-r4 x264-libs=${X264_VERSION} \
        ca-certificates=20260611-r1 gcc-14-default=14.4.0-r1 glibc-dev=2.44-r6 \
        libcrypto3=3.6.5-r2 libssl3=3.6.5-r2 \
