@@ -80,8 +80,13 @@ Syft inventories and their SPDX/CycloneDX conversions with checksums, reports,
 and runtime test results are retained for 14 days.
 
 The runtime uses Wolfi Python `3.12.15-r0`, OpenSSL `3.6.5-r2`, zlib
-`1.3.2.1_rc20260601-r0`, and source-built FFmpeg `9.0.2`. Native runtime tests
-exercise a crafted `CVE-2026-82049` tarfile archive against the stdlib fix and
+`1.3.2.1_rc20260601-r0`, Brotli `1.2.1-r1`, and source-built FFmpeg `9.0.2`.
+Both Docker stages explicitly upgrade all three Brotli libraries inherited from
+the pinned base image to fix `CVE-2026-111497`. The Python lock pins `filelock`
+`4.2.1` to fix `CVE-2026-112940` (SQLite-backed lock file overwrite) and its
+two Low-severity Windows advisories. These are package upgrades, not VEX exemptions.
+
+Native runtime tests exercise a crafted `CVE-2026-82049` tarfile archive against the stdlib fix and
 verify the FFmpeg MPEG muxer and DASH, RTSP, SDP and SAT>IP demuxers are absent
 before applying the three exact-package VEX assessments. The RTSP input check
 also rejects a URL as an unknown format, covering `CVE-2026-107696` without
