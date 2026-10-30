@@ -16,9 +16,9 @@ permissions:
 
 jobs:
   source:
-    uses: spunkytensor/.github/.github/workflows/trivy.yml@ed53814ed23f76c11fa4a91f57f99de903c18bfc
+    uses: spunkytensor/.github/.github/workflows/trivy.yml@2a2d755bd3279917e687d9109489bebadeab4c50
     with:
-      baseline-sha: ed53814ed23f76c11fa4a91f57f99de903c18bfc
+      baseline-sha: 2a2d755bd3279917e687d9109489bebadeab4c50
   codeql:
     if: github.event.repository.private == false
     name: CodeQL (${{ matrix.language }})

@@ -110,8 +110,8 @@ without a published fixed version as of 2026-10-30. It is not suppressed;
 the existing High/Critical gate is unchanged.
 
 `Spunky Tensor security` in `.github/workflows/public-repo-security.yml` runs on
-the same events and nightly schedule. It calls the shared Trivy workflow pinned
-to `ed53814ed23f76c11fa4a91f57f99de903c18bfc`, retaining source SPDX and CycloneDX
+the same events and nightly schedule. It calls the shared Trivy 0.76.1 workflow pinned
+to `2a2d755bd3279917e687d9109489bebadeab4c50`, retaining source SPDX and CycloneDX
 SBOMs, all-severity vulnerability JSON, tool/database metadata, source identity,
 and checksums for 30 days. Empty inventories, scanner errors, and High/Critical
 findings (including unfixed findings) fail. It does not apply the runtime VEX.
