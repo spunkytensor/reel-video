@@ -34,8 +34,9 @@ ldconfig
 cp COPYING.GPLv3 /sources/FFmpeg-COPYING.GPLv3
 
 python3.12 -m venv /build/venv
+# Preserve the distro-seeded pip's vendored security backports.
 /build/venv/bin/python -m pip install --no-cache-dir \
-    pip==26.2.1 setuptools==84.0.0 cython==3.3.0 wheel==0.48.0
+    setuptools==84.1.0 cython==3.3.0 wheel==0.48.0
 # A source build is essential: PyAV wheels bundle a different FFmpeg ABI.
 PKG_CONFIG_PATH=/usr/local/lib/pkgconfig /build/venv/bin/python -m pip wheel \
     --no-cache-dir --no-build-isolation --no-deps \
