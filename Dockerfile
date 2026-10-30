@@ -5,17 +5,19 @@ ARG BASE_IMAGE=cgr.dev/chainguard/wolfi-base@sha256:42c1bedc56d25685b394a7a86081
 FROM ${BASE_IMAGE} AS media-build
 
 # Wolfi uses glibc, not musl, and backports fixes into its Python 3.12 packages.
-# 3.12.15-r1 and later link OpenSSL 4 instead; with the base image's OpenSSL
-# 4.0.2, hashlib lacks sha224, so ensurepip and venv creation fail.
-ARG PYTHON_VERSION=3.12.15-r0
+# Python's OpenSSL 4 and Expat ABIs must match in BOTH stages: the base's
+# OpenSSL 4.0.2 lacks sha224, and Expat 2.8 lacks XML_GetCurrentByteIndex64.
+ARG PYTHON_VERSION=3.12.16-r3
 ARG X264_VERSION=2025.06.08-r7
 # Explicitly replace the base image's Brotli libraries for CVE-2026-111497;
 # apk add otherwise retains already-installed transitive dependencies.
 RUN apk add --no-cache \
        python-3.12-dev=${PYTHON_VERSION} python-3.12=${PYTHON_VERSION} \
-       libexpat1=2.8.4-r0 zlib=1.3.2.1_rc20260601-r0 \
+       libexpat1=2.9.0-r0 zlib=1.3.2.1_rc20260601-r0 \
        libbrotlicommon1=1.2.1-r1 libbrotlidec1=1.2.1-r1 libbrotlienc1=1.2.1-r1 \
-       py3.12-pip=26.2.1-r4 gcc-14-default=14.4.0-r1 glibc-dev=2.44-r6 \
+       py3.12-pip=26.2.2-r2 py3-pip-wheel=26.2.2-r2 \
+       openssl-4.0-libcrypto=4.0.3-r6 openssl-4.0-libssl=4.0.3-r6 \
+       gcc-14-default=14.4.0-r1 glibc-dev=2.44-r6 \
        pkgconf=3.0.7-r0 nasm=3.02-r1 curl=8.22.0-r2 \
        ca-certificates=20260611-r1 xz=5.8.3-r3 make=4.4.1-r13 \
        x264-dev=${X264_VERSION} \
@@ -26,7 +28,7 @@ COPY docker/build-media.sh /build-media.sh
 RUN sh /build-media.sh
 
 FROM ${BASE_IMAGE} AS runtime
-ARG PYTHON_VERSION=3.12.15-r0
+ARG PYTHON_VERSION=3.12.16-r3
 ARG X264_VERSION=2025.06.08-r7
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -41,9 +43,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # explicitly; Grype does not map the openssl-4.0-* package names to OpenSSL CVEs.
 RUN apk add --no-cache \
        python-3.12=${PYTHON_VERSION} python-3.12-dev=${PYTHON_VERSION} \
-       libexpat1=2.8.4-r0 zlib=1.3.2.1_rc20260601-r0 \
+       libexpat1=2.9.0-r0 zlib=1.3.2.1_rc20260601-r0 \
        libbrotlicommon1=1.2.1-r1 libbrotlidec1=1.2.1-r1 libbrotlienc1=1.2.1-r1 \
-       py3.12-pip=26.2.1-r4 x264-libs=${X264_VERSION} \
+       py3.12-pip=26.2.2-r2 py3-pip-wheel=26.2.2-r2 x264-libs=${X264_VERSION} \
        ca-certificates=20260611-r1 gcc-14-default=14.4.0-r1 glibc-dev=2.44-r6 \
        libcrypto3=3.6.5-r2 libssl3=3.6.5-r2 \
        openssl-4.0-libcrypto=4.0.3-r6 openssl-4.0-libssl=4.0.3-r6 \
@@ -54,8 +56,9 @@ COPY --from=media-build /usr/local/ /usr/local/
 COPY --from=media-build /sources/ /usr/share/reel-video/sources/
 COPY --from=media-build /wheels/ /wheels/
 COPY docker/build-media.sh Dockerfile /usr/share/reel-video/build/
+# Seed venvs with Wolfi's patched pip wheel; a PyPI replacement would discard
+# its vendored msgpack/certifi security backports.
 RUN ldconfig && python3.12 -m venv /opt/venv \
-    && python -m pip install --no-cache-dir pip==26.2.1 \
     && python -m pip install --no-cache-dir --no-deps /wheels/av-*.whl \
     && rm -rf /wheels
 
