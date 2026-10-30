@@ -6,6 +6,6 @@
     "test": "node ci/browser.cjs"
   },
   "devDependencies": {
-    "playwright-core": "1.63.0"
+    "playwright-core": "1.64.1"
   }
 }
