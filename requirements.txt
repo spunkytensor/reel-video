@@ -59,7 +59,7 @@ ruff==0.16.6
 safetensors==0.8.0
 scipy==1.18.1
 sentencepiece==0.2.2
-setuptools==84.0.0
+setuptools==84.1.0
 shellingham==1.5.4
 starlette==1.6.0
 sympy==1.14.0

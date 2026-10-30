@@ -3,8 +3,10 @@
 
 """Run inside the actual image, offline and without GPU access or model weights."""
 
+import hashlib
 import io
 import os
+import ssl
 import subprocess
 import sys
 import tarfile
@@ -16,6 +18,42 @@ import av
 import pytest
 import torch
 from PIL import Image
+
+
+def test_python_hashlib_and_seeded_pip_compatibility(tmp_path):
+    # OpenSSL/Expat ABI mismatches can break ensurepip despite a working ssl
+    # import. Exercise the real bootstrap, including Wolfi's vendored fixes.
+    assert hashlib.sha224(b"test").hexdigest() == (
+        "90a3ed9e32b2aaf4c61c410eb925426119e1a9dc53d4286ade99a809"
+    )
+    environment = tmp_path / "venv"
+    subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True)
+    for python in (sys.executable, str(environment / "bin/python")):
+        subprocess.run(
+            [
+                python,
+                "-c",
+                (
+                    "import pip; from pip._vendor import msgpack, certifi; "
+                    "assert pip.__version__ == '26.2.2'; "
+                    "assert msgpack.__version__ == '1.2.3'; "
+                    "assert certifi.__version__ == '2026.10.23'"
+                ),
+            ],
+            check=True,
+        )
+
+
+def test_python_ssl_contains_compromised_key_denylist():
+    # CVE-2026-115557: CPython 3.12.16's native denylist matches SPKI hashes,
+    # not root-store contents. Check the compiled eMudhra G3B entry from
+    # CPython v3.12.16 Modules/_ssl/distrusted_spki.h, without private-key fixtures.
+    assert (
+        bytes.fromhex(
+            "43bffa19d6ef651451f6841e019931e96f6f2eaeff28ab4b6f1ce4576de2717b"
+        )
+        in Path(ssl._ssl.__file__).read_bytes()
+    )
 
 
 def test_python_cookie_control_character_regression():
@@ -66,8 +104,8 @@ def test_python_expat_uses_full_width_hash_salt():
     # This checks the actual binary's API reference, not only a version label.
     import pyexpat
 
-    assert sys.version_info[:3] == (3, 12, 15)
-    assert expat.version_info >= (2, 8, 0)
+    assert sys.version_info[:3] == (3, 12, 16)
+    assert expat.version_info >= (2, 9, 0)
     symbols = subprocess.check_output(["readelf", "-Ws", pyexpat.__file__], text=True)
     assert "XML_SetHashSalt16Bytes" in symbols
     dependencies = subprocess.check_output(
@@ -76,7 +114,7 @@ def test_python_expat_uses_full_width_hash_salt():
     assert "libexpat.so.1" in dependencies
     # These stdlib regressions were validated against this exact APK revision.
     subprocess.run(
-        ["apk", "--no-network", "info", "--installed", "python-3.12=3.12.15-r0"],
+        ["apk", "--no-network", "info", "--installed", "python-3.12=3.12.16-r3"],
         check=True,
     )
 

@@ -79,8 +79,17 @@ baseline. Unresolved High/Critical findings and incomplete inventories fail.
 Syft inventories and their SPDX/CycloneDX conversions with checksums, reports,
 and runtime test results are retained for 14 days.
 
-The runtime uses Wolfi Python `3.12.15-r0`, OpenSSL `3.6.5-r2`, zlib
+The runtime uses Wolfi Python `3.12.16-r3`, Expat `2.9.0-r0`, OpenSSL `3.6.5-r2`, zlib
 `1.3.2.1_rc20260601-r0`, Brotli `1.2.1-r1`, and source-built FFmpeg `9.0.2`.
+Python 3.12.16 includes the compromised-certificate key denylist for
+`CVE-2026-115557`. Both stages explicitly install OpenSSL 4 `4.0.3-r6`
+and Expat 2.9: the pinned base's OpenSSL 4.0.2 breaks SHA-224, while older
+Expat lacks the new Python binary's `XML_GetCurrentByteIndex64` symbol.
+Runtime checks exercise SHA-224, fresh offline venv creation, and the compiled
+denylist entry. Wolfi pip and its venv seed wheel are pinned to `26.2.2-r2`,
+including vendored msgpack `1.2.3` (`CVE-2026-114613`) and certifi `2026.10.23`.
+Neither stage replaces this patched pip with PyPI's wheel. Setuptools is pinned
+to `84.1.0` in production and the PyAV build environment for `GHSA-xmj3-9gf7-h52w`.
 Both Docker stages explicitly upgrade all three Brotli libraries inherited from
 the pinned base image to fix `CVE-2026-111497`. The Python lock pins `filelock`
 `4.2.1` to fix `CVE-2026-112940` (SQLite-backed lock file overwrite) and its
@@ -95,6 +104,10 @@ the vulnerable code is excluded from this local-media build, not patched.
 Those assessments apply only to this tested image
 build, not to unmodified packages or other FFmpeg builds with the same version.
 The original CVE baseline and High/Critical failure threshold remain enforced.
+
+The source scan still reports Medium `CVE-2026-69112` in accelerate `1.14.0`
+without a published fixed version as of 2026-10-30. It is not suppressed;
+the existing High/Critical gate is unchanged.
 
 `Spunky Tensor security` in `.github/workflows/public-repo-security.yml` runs on
 the same events and nightly schedule. It calls the shared Trivy workflow pinned
