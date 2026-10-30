@@ -4,7 +4,7 @@ Maintainer: Spunky Tensor (`spunkytensor`). Supported versions remain the latest
 release and `main`, as defined in [SECURITY.md](../SECURITY.md). The project and
 contribution license remains Apache-2.0, with no separate CLA or DCO requirement.
 
-The adopted [shared baseline](https://github.com/spunkytensor/.github/blob/ed53814ed23f76c11fa4a91f57f99de903c18bfc/docs/baseline.md)
+The adopted [shared baseline](https://github.com/spunkytensor/.github/blob/2a2d755bd3279917e687d9109489bebadeab4c50/docs/baseline.md)
 is pinned at that revision. Adoption is partial; automation is not legal clearance.
 
 ## Automated coverage
