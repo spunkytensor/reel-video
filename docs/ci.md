@@ -33,6 +33,11 @@ uv installs the CPU test dependencies from `ci/requirements.txt`, constrained by
 `requirements.txt`. Port 18088 must be free. `PYTHON` and `CHROMIUM_PATH` can
 select alternative executables. Local results are written to `outputs/ci/`.
 
+Change dependencies in `requirements.in`, then regenerate `requirements.txt` with
+the pip-compile command in its header. Dependabot reuses that command.
+`--strip-extras` keeps the file valid as a pip constraints file, and
+`--allow-unsafe` keeps the `setuptools` security pin.
+
 ## GitHub Actions caches
 
 pip downloads/wheels are cached using both CPU requirements and production
