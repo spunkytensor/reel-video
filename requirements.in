@@ -13,3 +13,5 @@ pytest
 fastapi==0.141.1
 uvicorn==0.52.4
 httpx==0.28.1
+# Not required by any package; pinned for GHSA-xmj3-9gf7-h52w in the runtime image.
+setuptools==84.1.0
