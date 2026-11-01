@@ -108,8 +108,10 @@ Those assessments apply only to this tested image
 build, not to unmodified packages or other FFmpeg builds with the same version.
 The original CVE baseline and High/Critical failure threshold remain enforced.
 
-The source scan still reports Medium `CVE-2026-69112` (`GHSA-4j2p-28q2-5m79`)
+The source scan and Dependabot still report Medium `CVE-2026-69112` (`GHSA-4j2p-28q2-5m79`)
 in accelerate `1.14.0` without a published fixed version as of 2026-11-01.
+Dependabot attributes it to `ci/requirements.txt` through its `-c ../requirements.txt`
+constraint; the CI environment does not install accelerate, but the runtime image does.
 The advisory range ends at `1.14.0`, but accelerate `1.15.0` keeps the same
 `weight_map` handling, so an upgrade alone is not remediation. The affected
 `load_checkpoint_in_model` and `load_checkpoint_and_dispatch` functions have no
