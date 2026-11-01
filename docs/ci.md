@@ -44,19 +44,17 @@ pip downloads/wheels are cached using both CPU requirements and production
 constraints; the existing npm download cache remains enabled. Installs and tests
 still run every time, without restoring virtual environments or `node_modules`.
 
-Both workflows use Buildx's GitHub Actions layer cache (`type=gha`, `mode=max`),
-including intermediate FFmpeg/PyAV builds and runtime dependencies. Changed build
-inputs invalidate affected layers. Images are loaded into Docker for the existing
-runtime tests and scans, without a registry push. Separate `runtime-ci-amd64` and
-`runtime-audit-amd64` scopes avoid competing writers across workflows.
+Runtime images are always built from scratch, without a Docker layer cache.
+Uploading and restoring the multi-GB CUDA layers through the GitHub Actions cache
+took longer than rebuilding them. Every build therefore refreshes mutable package
+installations, and `pull: true` checks the base image. Images are loaded into
+Docker for the runtime tests and scans, without a registry push.
 
-Builds always check the base image with `pull: true`. Nightly and manual CVE audits
-also use `no-cache: true` to refresh mutable package installations. Every audit
-creates a new SBOM and runs the vulnerability scan and all security gates.
+Both CVE audit jobs restore the Grype vulnerability database cached for the
+current UTC date. Grype still checks for a newer database and downloads it when
+one exists. Every audit creates a new SBOM and runs the vulnerability scan and
+all security gates.
 
-First runs are cold; `main` populates caches that subsequent PRs can read.
-PR-written caches are restricted to their merge ref. Large CUDA layers incur
-transfer/storage costs and may be evicted; cache misses trigger full builds.
 No test results, credentials, model weights, media or application state are cached.
 
 September 9 baseline: [CI](https://github.com/spunkytensor/reel-video/actions/runs/34316958696)

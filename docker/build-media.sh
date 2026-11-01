@@ -28,7 +28,7 @@ cd /build/ffmpeg-9.0.2
     --enable-encoder=libx264,aac,wrapped_avframe,pcm_s16le --enable-parser=h264,aac \
     --enable-filter=scale,pad,setsar,aresample,aformat,format,abuffer,abuffersink,buffer,buffersink \
     --enable-indev=lavfi --enable-filter=testsrc2,sine
-make -j2
+make -j"$(nproc)"
 make install
 ldconfig
 cp COPYING.GPLv3 /sources/FFmpeg-COPYING.GPLv3
