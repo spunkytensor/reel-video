@@ -110,9 +110,14 @@ Those assessments apply only to this tested image
 build, not to unmodified packages or other FFmpeg builds with the same version.
 The original CVE baseline and High/Critical failure threshold remain enforced.
 
-The source scan still reports Medium `CVE-2026-69112` in accelerate `1.14.0`
-without a published fixed version as of 2026-10-30. It is not suppressed;
-the existing High/Critical gate is unchanged.
+The source scan still reports Medium `CVE-2026-69112` (`GHSA-4j2p-28q2-5m79`)
+in accelerate `1.14.0` without a published fixed version as of 2026-11-01.
+The advisory range ends at `1.14.0`, but accelerate `1.15.0` keeps the same
+`weight_map` handling, so an upgrade alone is not remediation. The affected
+`load_checkpoint_in_model` and `load_checkpoint_and_dispatch` functions have no
+callers in this repository, diffusers `0.40.0` or transformers `5.21.0`.
+`h3.py` loads only the pinned model revision with `local_files_only=True`.
+The finding is not suppressed; the existing High/Critical gate is unchanged.
 
 `Spunky Tensor security` in `.github/workflows/public-repo-security.yml` runs on
 the same events and nightly schedule. It calls the shared Trivy 0.76.1 workflow pinned
