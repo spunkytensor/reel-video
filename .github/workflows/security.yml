@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up cached runtime builder
+      - name: Set up runtime builder
         if: matrix.target == 'runtime-image'
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - name: Build actual runtime, including CUDA wheels (no execution or weights)
@@ -38,10 +38,6 @@ jobs:
           load: true
           tags: reel-video:audit
           pull: true
-          # Nightly and manual audits refresh mutable package repositories too.
-          no-cache: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
-          cache-from: type=gha,scope=runtime-audit-amd64
-          cache-to: type=gha,scope=runtime-audit-amd64,mode=max
       - name: Verify native compatibility and Python fixes before applying VEX
         if: matrix.target == 'runtime-image'
         run: sh ci/runtime.sh reel-video:audit
@@ -82,6 +78,16 @@ jobs:
         run: |
           "$SYFT" convert sbom.syft.json -o spdx-json=sbom.spdx.json -o cyclonedx-json=sbom.cdx.json
           sha256sum sbom.*.json > SBOM-SHA256SUMS
+      - name: Name today's vulnerability DB cache
+        id: grype-db
+        run: echo "key=grype-db-v0.118.0-$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+      # Grype still checks for a newer DB and downloads it if one exists; the
+      # cache only skips re-downloading and re-installing an unchanged DB.
+      - name: Restore today's vulnerability DB
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/grype/db
+          key: ${{ steps.grype-db.outputs.key }}
       - name: Fail on High or Critical CVEs, including unfixed findings
         uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
         env:
