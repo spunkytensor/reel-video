@@ -48,7 +48,10 @@ Runtime images are always built from scratch, without a Docker layer cache.
 Uploading and restoring the multi-GB CUDA layers through the GitHub Actions cache
 took longer than rebuilding them. Every build therefore refreshes mutable package
 installations, and `pull: true` checks the base image. Images are loaded into
-Docker for the runtime tests and scans, without a registry push.
+Docker for the runtime tests and scans, without a registry push. Each build also
+downloads the FFmpeg, PyAV and x264 sources; `docker/build-media.sh` retries
+transient network failures for up to 10 minutes and verifies the pinned SHA-256
+checksums before use.
 
 Both CVE audit jobs restore the Grype vulnerability database cached for the
 current UTC date. Grype still checks for a newer database and downloads it when
