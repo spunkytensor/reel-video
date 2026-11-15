@@ -85,12 +85,17 @@ baseline. Unresolved High/Critical findings and incomplete inventories fail.
 Syft inventories and their SPDX/CycloneDX conversions with checksums, reports,
 and runtime test results are retained for 14 days.
 
-The runtime uses Wolfi Python `3.12.16-r3`, Expat `2.9.0-r0`, OpenSSL `3.6.5-r2`, zlib
-`1.3.2.1_rc20260601-r0`, Brotli `1.2.1-r1`, and source-built FFmpeg `9.0.2`.
+The runtime uses Wolfi Python `3.12.16-r3`, Expat `2.10.0-r1`, glibc `2.44-r19`,
+OpenSSL `3.6.5-r2`, zlib `1.3.2.1_rc20260601-r0`, Brotli `1.2.1-r1`, and
+source-built FFmpeg `9.0.2`.
 Python 3.12.16 includes the compromised-certificate key denylist for
 `CVE-2026-115557`. Both stages explicitly install OpenSSL 4 `4.0.3-r6`
-and Expat 2.9: the pinned base's OpenSSL 4.0.2 breaks SHA-224, while older
-Expat lacks the new Python binary's `XML_GetCurrentByteIndex64` symbol.
+and Expat 2.10: the pinned base's OpenSSL 4.0.2 breaks SHA-224, and Expat
+older than 2.9 lacks the new Python binary's `XML_GetCurrentByteIndex64` symbol.
+Expat 2.10 fixes `CVE-2026-113351` and `CVE-2026-115506`. Both stages also
+replace the base image's `glibc-2.44`, `glibc-2.44-locale-posix`, `ld-linux-2.44`
+and `libcrypt1-2.44` packages to fix `CVE-2026-84243`. The base pins these
+versioned names, so installing only `glibc-dev` leaves them at `2.44-r7`.
 Runtime checks exercise SHA-224, fresh offline venv creation, and the compiled
 denylist entry. Wolfi pip and its venv seed wheel are pinned to `26.2.2-r2`,
 including vendored msgpack `1.2.3` (`CVE-2026-114613`) and certifi `2026.10.23`.
@@ -112,7 +117,7 @@ build, not to unmodified packages or other FFmpeg builds with the same version.
 The original CVE baseline and High/Critical failure threshold remain enforced.
 
 The source scan and Dependabot still report Medium `CVE-2026-69112` (`GHSA-4j2p-28q2-5m79`)
-in accelerate `1.14.0` without a published fixed version as of 2026-11-01.
+in accelerate `1.14.0` without a published fixed version as of 2026-11-15.
 Dependabot attributes it to `ci/requirements.txt` through its `-c ../requirements.txt`
 constraint; the CI environment does not install accelerate, but the runtime image does.
 The advisory range ends at `1.14.0`, but accelerate `1.15.0` keeps the same

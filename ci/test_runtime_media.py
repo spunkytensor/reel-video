@@ -105,7 +105,7 @@ def test_python_expat_uses_full_width_hash_salt():
     import pyexpat
 
     assert sys.version_info[:3] == (3, 12, 16)
-    assert expat.version_info >= (2, 9, 0)
+    assert expat.version_info >= (2, 10, 0)
     symbols = subprocess.check_output(["readelf", "-Ws", pyexpat.__file__], text=True)
     assert "XML_SetHashSalt16Bytes" in symbols
     dependencies = subprocess.check_output(
