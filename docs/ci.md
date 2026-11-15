@@ -123,7 +123,7 @@ constraint; the CI environment does not install accelerate, but the runtime imag
 The advisory range ends at `1.14.0`, but accelerate `1.15.0` keeps the same
 `weight_map` handling, so an upgrade alone is not remediation. The affected
 `load_checkpoint_in_model` and `load_checkpoint_and_dispatch` functions have no
-callers in this repository, diffusers `0.40.0` or transformers `5.21.0`.
+callers in this repository, diffusers `0.40.0` or transformers `5.22.1`.
 `h3.py` loads only the pinned model revision with `local_files_only=True`.
 The finding is not suppressed; the existing High/Critical gate is unchanged.
 
