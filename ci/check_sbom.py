@@ -40,7 +40,7 @@ else:
         {
             (normalized("python-3.12-base"), "3.12.16-r3"),
             ("libexpat1", "2.10.0-r1"),
-            ("glibc-2.44", "2.44-r19"),
+            (normalized("glibc-2.44"), "2.44-r19"),
             (normalized("py3.12-pip-base"), "26.2.2-r2"),
             ("py3-pip-wheel", "26.2.2-r2"),
             ("pip", "26.2.2"),
