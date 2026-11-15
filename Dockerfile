@@ -18,7 +18,7 @@ RUN apk add --no-cache \
        python-3.12-dev=${PYTHON_VERSION} python-3.12=${PYTHON_VERSION} \
        libexpat1=2.10.0-r1 zlib=1.3.2.1_rc20260601-r0 \
        libbrotlicommon1=1.2.1-r1 libbrotlidec1=1.2.1-r1 libbrotlienc1=1.2.1-r1 \
-       py3.12-pip=26.2.2-r2 py3-pip-wheel=26.2.2-r2 \
+       py3.12-pip=26.2.2-r2 py3.12-pip-base=26.2.2-r2 py3-pip-wheel=26.2.2-r2 \
        openssl-4.0-libcrypto=4.0.3-r6 openssl-4.0-libssl=4.0.3-r6 \
        gcc-14-default=14.4.0-r1 glibc-dev=${GLIBC_VERSION} \
        glibc-2.44=${GLIBC_VERSION} glibc-2.44-locale-posix=${GLIBC_VERSION} \
@@ -51,7 +51,7 @@ RUN apk add --no-cache \
        python-3.12=${PYTHON_VERSION} python-3.12-dev=${PYTHON_VERSION} \
        libexpat1=2.10.0-r1 zlib=1.3.2.1_rc20260601-r0 \
        libbrotlicommon1=1.2.1-r1 libbrotlidec1=1.2.1-r1 libbrotlienc1=1.2.1-r1 \
-       py3.12-pip=26.2.2-r2 py3-pip-wheel=26.2.2-r2 x264-libs=${X264_VERSION} \
+       py3.12-pip=26.2.2-r2 py3.12-pip-base=26.2.2-r2 py3-pip-wheel=26.2.2-r2 x264-libs=${X264_VERSION} \
        ca-certificates=20260909-r3 ca-certificates-bundle=20260909-r3 gcc-14-default=14.4.0-r1 \
        glibc-dev=${GLIBC_VERSION} glibc-2.44=${GLIBC_VERSION} glibc-2.44-locale-posix=${GLIBC_VERSION} \
        ld-linux-2.44=${GLIBC_VERSION} libcrypt1-2.44=${GLIBC_VERSION} \

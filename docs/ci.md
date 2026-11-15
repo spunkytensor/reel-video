@@ -97,7 +97,8 @@ replace the base image's `glibc-2.44`, `glibc-2.44-locale-posix`, `ld-linux-2.44
 and `libcrypt1-2.44` packages to fix `CVE-2026-84243`. The base pins these
 versioned names, so installing only `glibc-dev` leaves them at `2.44-r7`.
 Runtime checks exercise SHA-224, fresh offline venv creation, and the compiled
-denylist entry. Wolfi pip and its venv seed wheel are pinned to `26.2.2-r2`,
+denylist entry. Wolfi pip, its unversioned `py3.12-pip-base` dependency and its
+venv seed wheel are pinned to `26.2.2-r2`,
 including vendored msgpack `1.2.3` (`CVE-2026-114613`) and certifi `2026.10.23`.
 Neither stage replaces this patched pip with PyPI's wheel. Setuptools is pinned
 to `84.1.0` in production and the PyAV build environment for `GHSA-xmj3-9gf7-h52w`.
